@@ -1,5 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
+
 import DashboardPage from "@/pages/DashboardPage"
+import MyWorkPage from "@/pages/MyWorkPage"
 
 function AppRouter() {
   return (
@@ -13,6 +15,11 @@ function AppRouter() {
         <Route
           path="/dashboard"
           element={<DashboardPage />}
+        />
+
+        <Route
+          path="/work"
+          element={<MyWorkPage />}
         />
       </Routes>
     </BrowserRouter>
