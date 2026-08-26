@@ -50,7 +50,10 @@ function ActiveProjects() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
-          <h2 className="text-sm font-semibold">Active Projects</h2>
+          <h2 className="text-sm font-semibold tracking-tight">
+            Active Projects
+          </h2>
+
           <p className="mt-1 text-xs text-muted-foreground">
             Current project progress
           </p>
@@ -58,7 +61,7 @@ function ActiveProjects() {
 
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           View all
           <ArrowUpRight className="size-3.5" />
@@ -67,13 +70,15 @@ function ActiveProjects() {
 
       {/* Desktop table */}
       <div className="hidden md:block">
-        <div className="grid grid-cols-[1.5fr_0.9fr_1fr_0.6fr] border-b border-border px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {/* Table header */}
+        <div className="grid grid-cols-[1.55fr_0.9fr_1.15fr_0.55fr] border-b border-border px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           <span>Project</span>
           <span>Health</span>
           <span>Progress</span>
           <span className="text-right">Due</span>
         </div>
 
+        {/* Rows */}
         <div className="divide-y divide-border">
           {projects.map((project) => (
             <ProjectRow key={project.code} project={project} />
@@ -84,20 +89,23 @@ function ActiveProjects() {
       {/* Mobile cards */}
       <div className="divide-y divide-border md:hidden">
         {projects.map((project) => (
-          <div key={project.code} className="space-y-4 p-5">
-            <div className="flex items-start justify-between">
+          <div
+            key={project.code}
+            className="space-y-4 p-4 transition-colors hover:bg-muted/20"
+          >
+            <div className="flex items-start justify-between gap-3">
               <ProjectIdentity project={project} />
 
               <button
                 type="button"
-                className="text-muted-foreground hover:text-foreground"
+                className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 aria-label={`More options for ${project.name}`}
               >
                 <MoreHorizontal className="size-4" />
               </button>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <HealthBadge health={project.health} />
 
               <span className="text-xs text-muted-foreground">
@@ -115,19 +123,24 @@ function ActiveProjects() {
 
 function ProjectRow({ project }: { project: Project }) {
   return (
-    <div className="grid grid-cols-[1.5fr_0.9fr_1fr_0.6fr] items-center px-5 py-4 transition hover:bg-muted/40">
+    <div className="group grid grid-cols-[1.55fr_0.9fr_1.15fr_0.55fr] items-center px-5 py-3.5 transition-colors hover:bg-muted/20">
+      {/* Project */}
       <ProjectIdentity project={project} />
 
+      {/* Health */}
       <HealthBadge health={project.health} />
 
-      <div className="flex items-center gap-3 pr-5">
+      {/* Progress */}
+      <div className="flex items-center gap-3 pr-6">
         <ProgressBar progress={project.progress} />
-        <span className="w-8 text-right text-xs font-medium">
+
+        <span className="w-8 shrink-0 text-right text-xs font-medium tabular-nums">
           {project.progress}%
         </span>
       </div>
 
-      <span className="text-right text-xs text-muted-foreground">
+      {/* Due date */}
+      <span className="text-right text-xs tabular-nums text-muted-foreground">
         {project.dueDate}
       </span>
     </div>
@@ -137,16 +150,24 @@ function ProjectRow({ project }: { project: Project }) {
 function ProjectIdentity({ project }: { project: Project }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
+      {/* Project code */}
       <div
-        className={`flex size-9 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold text-white ${project.color}`}
+        className={[
+          "flex size-9 shrink-0 items-center justify-center rounded-lg",
+          "text-[10px] font-bold text-white shadow-sm",
+          project.color,
+        ].join(" ")}
       >
         {project.code}
       </div>
 
+      {/* Project information */}
       <div className="min-w-0">
-        <p className="truncate text-sm font-medium">{project.name}</p>
+        <p className="truncate text-[13px] font-semibold tracking-tight">
+          {project.name}
+        </p>
 
-        <p className="mt-0.5 text-xs text-muted-foreground">
+        <p className="mt-0.5 text-[11px] text-muted-foreground">
           {project.completedTasks} / {project.totalTasks} tasks
         </p>
       </div>
@@ -164,16 +185,17 @@ function HealthBadge({
   return (
     <span
       className={[
-        "inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium",
+        "inline-flex w-fit items-center gap-1.5 rounded-full",
+        "px-2.5 py-1 text-[10px] font-medium",
         isHealthy
-          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-          : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+          ? "bg-emerald-500/10 text-emerald-400"
+          : "bg-amber-500/10 text-amber-400",
       ].join(" ")}
     >
       <span
         className={[
           "size-1.5 rounded-full",
-          isHealthy ? "bg-emerald-500" : "bg-amber-500",
+          isHealthy ? "bg-emerald-400" : "bg-amber-400",
         ].join(" ")}
       />
 
@@ -186,7 +208,7 @@ function ProgressBar({ progress }: { progress: number }) {
   return (
     <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
       <div
-        className="h-full rounded-full bg-foreground transition-all"
+        className="h-full rounded-full bg-foreground transition-[width] duration-500 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>

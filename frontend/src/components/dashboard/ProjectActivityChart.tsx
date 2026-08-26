@@ -20,12 +20,12 @@ const activityData = [
 
 function ProjectActivityChart() {
   return (
-    <section className="overflow-hidden rounded-2xl border bg-card">
+    <section className="overflow-hidden rounded-2xl border border-border bg-card">
       {/* Header */}
-      <div className="flex items-start justify-between px-5 pb-2 pt-5">
+      <div className="flex flex-col gap-3 px-5 pb-1 pt-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-sm font-semibold">
-            Project activity
+          <h2 className="text-sm font-semibold tracking-tight">
+            Project Activity
           </h2>
 
           <p className="mt-1 text-xs text-muted-foreground">
@@ -33,7 +33,7 @@ function ProjectActivityChart() {
           </p>
         </div>
 
-        <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <span className="size-1.5 rounded-full bg-cyan-400" />
             Completed
@@ -47,20 +47,23 @@ function ProjectActivityChart() {
       </div>
 
       {/* Chart */}
-      <div className="h-[260px] w-full px-2 pb-4 pt-4 sm:h-[280px]">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="h-[240px] w-full px-2 pb-4 pt-3 sm:h-[255px]">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+        >
           <LineChart
             data={activityData}
             margin={{
-              top: 10,
-              right: 16,
+              top: 12,
+              right: 18,
               left: -18,
               bottom: 0,
             }}
           >
             <CartesianGrid
               vertical={false}
-              stroke="rgba(255,255,255,0.07)"
+              stroke="rgba(255,255,255,0.055)"
             />
 
             <XAxis
@@ -69,7 +72,7 @@ function ProjectActivityChart() {
               tickLine={false}
               tick={{
                 fill: "rgba(255,255,255,0.38)",
-                fontSize: 11,
+                fontSize: 10,
               }}
               dy={8}
             />
@@ -81,18 +84,20 @@ function ProjectActivityChart() {
                 fill: "rgba(255,255,255,0.28)",
                 fontSize: 10,
               }}
+              width={32}
             />
 
             <Tooltip
               cursor={{
-                stroke: "rgba(255,255,255,0.12)",
+                stroke: "rgba(255,255,255,0.1)",
               }}
               contentStyle={{
                 background: "#171717",
                 border: "1px solid rgba(255,255,255,0.1)",
                 borderRadius: "10px",
                 color: "#fff",
-                fontSize: "12px",
+                fontSize: "11px",
+                padding: "8px 10px",
               }}
               labelStyle={{
                 color: "rgba(255,255,255,0.55)",

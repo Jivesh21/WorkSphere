@@ -6,7 +6,7 @@ import {
   CalendarDays,
   ListChecks,
 } from "lucide-react"
-
+import UpcomingDeadlines from "@/components/dashboard/UpcomingDeadlines"
 import ActiveProjects from "@/components/dashboard/ActiveProjects"
 import ProjectActivityChart from "@/components/dashboard/ProjectActivityChart"
 import SprintProgress from "@/components/dashboard/SprintProgress"
@@ -115,10 +115,12 @@ function DashboardPage() {
           <SprintProgress />
         </section>
 
-        {/* Active Projects */}
-        <section>
-          <ActiveProjects />
-        </section>
+        {/* Projects + Deadlines */}
+<section className="grid min-w-0 grid-cols-1 items-start gap-3 xl:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.85fr)]">
+  <ActiveProjects />
+
+  <UpcomingDeadlines />
+</section>
       </div>
     </DashboardLayout>
   )
