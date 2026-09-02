@@ -11,103 +11,13 @@ import {
   Users,
 } from "lucide-react"
 
+import CreateProjectModal from "@/components/projects/CreateProjectModal"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 
-type ProjectStatus = "Active" | "Planning" | "Completed"
-type ProjectHealth = "On track" | "At risk"
-
-interface Project {
-  id: number
-  name: string
-  code: string
-  description: string
-  color: string
-  status: ProjectStatus
-  health: ProjectHealth
-  progress: number
-  completedTasks: number
-  totalTasks: number
-  members: number
-  dueDate: string
-}
-
-const initialProjects: Project[] = [
-  {
-    id: 1,
-    name: "WorkSphere",
-    code: "WS",
-    description:
-      "Team collaboration and project management platform",
-    color: "bg-cyan-500",
-    status: "Active",
-    health: "On track",
-    progress: 64,
-    completedTasks: 42,
-    totalTasks: 66,
-    members: 3,
-    dueDate: "Sep 18",
-  },
-  {
-    id: 2,
-    name: "Atlas Mobile",
-    code: "ATL",
-    description:
-      "Mobile experience and application redesign",
-    color: "bg-sky-500",
-    status: "Active",
-    health: "On track",
-    progress: 72,
-    completedTasks: 38,
-    totalTasks: 52,
-    members: 6,
-    dueDate: "Sep 04",
-  },
-  {
-    id: 3,
-    name: "Nimbus API",
-    code: "NIM",
-    description:
-      "Backend services and public API infrastructure",
-    color: "bg-violet-500",
-    status: "Active",
-    health: "At risk",
-    progress: 48,
-    completedTasks: 24,
-    totalTasks: 50,
-    members: 5,
-    dueDate: "Aug 30",
-  },
-  {
-    id: 4,
-    name: "Mercury Web",
-    code: "MER",
-    description:
-      "Marketing website and customer-facing experience",
-    color: "bg-amber-500",
-    status: "Planning",
-    health: "On track",
-    progress: 18,
-    completedTasks: 7,
-    totalTasks: 38,
-    members: 4,
-    dueDate: "Oct 12",
-  },
-  {
-    id: 5,
-    name: "Orion Analytics",
-    code: "ORI",
-    description:
-      "Analytics and reporting workspace",
-    color: "bg-emerald-500",
-    status: "Completed",
-    health: "On track",
-    progress: 100,
-    completedTasks: 84,
-    totalTasks: 84,
-    members: 7,
-    dueDate: "Aug 12",
-  },
-]
+import {
+  initialProjects,
+  type Project,
+} from "@/constants/projects"
 
 const statusFilters = [
   "All",
@@ -119,7 +29,7 @@ const statusFilters = [
 type StatusFilter = (typeof statusFilters)[number]
 
 function ProjectsPage() {
-  const [projectList] =
+  const [projectList, setProjectList] =
     useState<Project[]>(initialProjects)
 
   const [search, setSearch] = useState("")
@@ -128,6 +38,9 @@ function ProjectsPage() {
     useState<StatusFilter>("All")
 
   const [showStatusMenu, setShowStatusMenu] =
+    useState(false)
+
+  const [showCreateModal, setShowCreateModal] =
     useState(false)
 
   const visibleProjects = useMemo(() => {
@@ -172,6 +85,20 @@ function ProjectsPage() {
       ),
   ).length
 
+  function handleCreateProject(
+    project: Project,
+  ) {
+    setProjectList((currentProjects) => [
+      project,
+      ...currentProjects,
+    ])
+
+    setShowCreateModal(false)
+
+    setSearch("")
+    setActiveStatus("All")
+  }
+
   return (
     <DashboardLayout>
       <div className="mx-auto w-full max-w-[1600px] space-y-6">
@@ -193,6 +120,7 @@ function ProjectsPage() {
 
           <button
             type="button"
+            onClick={() => setShowCreateModal(true)}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-foreground px-4 text-sm font-medium text-background transition hover:opacity-90"
           >
             <Plus className="size-4" />
@@ -349,6 +277,13 @@ function ProjectsPage() {
           )}
         </section>
       </div>
+
+      {/* Create Project Modal */}
+      <CreateProjectModal
+        open={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onCreate={handleCreateProject}
+      />
     </DashboardLayout>
   )
 }

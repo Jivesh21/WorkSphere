@@ -5,9 +5,28 @@ import {
   Plus,
   Search,
 } from "lucide-react"
+import { useLocation } from "react-router-dom"
+
 import { Button } from "@/components/ui/button"
 
+const pageTitles: Record<string, string> = {
+  "/dashboard": "Dashboard",
+  "/work": "My Work",
+  "/projects": "Projects",
+  "/teams": "Teams",
+  "/issues": "Issues",
+  "/sprints": "Sprints",
+  "/notifications": "Notifications",
+  "/analytics": "Analytics",
+  "/settings": "Settings",
+}
+
 function TopNavbar() {
+  const location = useLocation()
+
+  const currentPage =
+    pageTitles[location.pathname] ?? "Dashboard"
+
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-5 md:px-6">
       {/* Breadcrumb */}
@@ -19,7 +38,7 @@ function TopNavbar() {
         <ChevronRight className="hidden size-4 text-muted-foreground/50 sm:block" />
 
         <span className="truncate text-sm font-medium">
-          Dashboard
+          {currentPage}
         </span>
       </div>
 

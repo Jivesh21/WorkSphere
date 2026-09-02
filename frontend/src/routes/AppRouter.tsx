@@ -1,8 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import ProjectsPage from "@/pages/ProjectsPage"
 import DashboardPage from "@/pages/DashboardPage"
-import MyWorkPage from "@/pages/MyWorkPage"
+import MyWorkPage from "@/pages/MyWorkPage/MyWorkPage"
 import TeamsPage from "@/pages/TeamsPage"
+import IssuesPage from "@/pages/IssuesPage"
 function AppRouter() {
   return (
     <BrowserRouter>
@@ -19,6 +20,10 @@ function AppRouter() {
         <Route
   path="/teams"
   element={<TeamsPage />}
+/>
+<Route
+  path="/issues"
+  element={<IssuesPage />}
 />
 <Route
   path="/projects"
