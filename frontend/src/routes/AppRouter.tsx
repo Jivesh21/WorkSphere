@@ -4,6 +4,7 @@ import DashboardPage from "@/pages/DashboardPage"
 import MyWorkPage from "@/pages/MyWorkPage/MyWorkPage"
 import TeamsPage from "@/pages/TeamsPage"
 import IssuesPage from "@/pages/IssuesPage"
+import WorkspacePage from "@/pages/Workspace/WorkspacePage"
 function AppRouter() {
   return (
     <BrowserRouter>
@@ -12,7 +13,10 @@ function AppRouter() {
           path="/"
           element={<Navigate to="/dashboard" replace />}
         />
-
+<Route
+  path="/workspace"
+  element={<WorkspacePage />}
+/>
         <Route
           path="/dashboard"
           element={<DashboardPage />}

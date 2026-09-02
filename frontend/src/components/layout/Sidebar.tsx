@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Bell,
+  BriefcaseBusiness,
   CircleHelp,
   FolderKanban,
   LayoutDashboard,
@@ -27,6 +28,11 @@ const mainNavigation = [
 ]
 
 const workspaceNavigation = [
+  {
+    label: "Workspace",
+    href: "/workspace",
+    icon: BriefcaseBusiness,
+  },
   {
     label: "Projects",
     href: "/projects",
