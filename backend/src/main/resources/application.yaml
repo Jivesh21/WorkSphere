@@ -3,8 +3,8 @@ spring:
     name: worksphere-backend
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/worksphere
-    username: ${DB_USERNAME:postgres}
+    url: ${DATASOURCE_URL}
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
   jpa:
@@ -15,3 +15,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
