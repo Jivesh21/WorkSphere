@@ -6,13 +6,18 @@ import TeamsPage from "@/pages/TeamsPage/TeamsPage"
 import MyWorkPage from "@/pages/MyWorkPage/MyWorkPage"
 import WorkspacePage from "@/pages/Workspace/WorkspacePage"
 import LoginPage from "@/pages/Auth/LoginPage"
+import RegisterPage from "@/pages/Auth/RegisterPage"
 import ProtectedRoute from "./ProtectedRoute"
+import PublicRoute from "./PublicRoute"
 
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Route>
 
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />

@@ -1,0 +1,204 @@
+@keyframes auth-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes auth-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes auth-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes auth-float-delayed {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes auth-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes auth-node-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+    filter: drop-shadow(0 0 0 rgba(99, 102, 241, 0));
+  }
+
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.7));
+  }
+}
+
+@keyframes auth-draw-line {
+  from {
+    opacity: 0;
+    stroke-dashoffset: 120;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes auth-progress {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 66.666%;
+  }
+}
+
+@keyframes auth-glow {
+  0%,
+  100% {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  50% {
+    box-shadow:
+      0 12px 32px rgba(0, 0, 0, 0.4),
+      0 0 24px rgba(99, 102, 241, 0.08);
+  }
+}
+
+/* Entrance */
+
+.auth-fade-up {
+  animation: auth-fade-up 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.auth-fade-in {
+  animation: auth-fade-in 900ms ease-out both;
+}
+
+/* Workflow */
+
+.auth-float {
+  animation:
+    auth-float 4.5s ease-in-out infinite,
+    auth-glow 4.5s ease-in-out infinite;
+}
+
+.auth-float-delayed {
+  animation:
+    auth-float-delayed 5s ease-in-out infinite,
+    auth-glow 5s ease-in-out infinite;
+}
+
+.auth-pulse {
+  animation: auth-pulse 2.4s ease-in-out infinite;
+}
+
+.auth-node-glow {
+  animation: auth-node-glow 2.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.auth-draw-line {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: auth-draw-line 1.2s
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Progress */
+
+.auth-progress {
+  animation: auth-progress 1.4s
+    cubic-bezier(0.22, 1, 0.36, 1)
+    700ms both;
+}
+
+/* Stagger */
+
+.auth-delay-1 {
+  animation-delay: 120ms;
+}
+
+.auth-delay-2 {
+  animation-delay: 280ms;
+}
+
+.auth-delay-3 {
+  animation-delay: 480ms;
+}
+
+.auth-delay-4 {
+  animation-delay: 700ms;
+}
+
+.auth-delay-5 {
+  animation-delay: 900ms;
+}
+
+/* Custom cursor */
+
+@media (pointer: fine) {
+  .auth-page {
+    cursor: none;
+  }
+
+  .auth-page button,
+  .auth-page a,
+  .auth-page input,
+  .auth-page textarea,
+  .auth-page select {
+    cursor: none;
+  }
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-fade-up,
+  .auth-fade-in,
+  .auth-float,
+  .auth-float-delayed,
+  .auth-pulse,
+  .auth-node-glow,
+  .auth-draw-line,
+  .auth-progress {
+    animation: none;
+  }
+}
