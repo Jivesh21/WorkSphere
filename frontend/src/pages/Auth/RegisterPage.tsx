@@ -88,15 +88,15 @@ export function RegisterPage() {
     setIsSubmitting(true)
 
     try {
-      await register({
-        name: name.trim(),
-        email: email.trim(),
-        password,
-      })
+     await register({
+  name: name.trim(),
+  email: email.trim(),
+  password,
+})
 
-      navigate("/dashboard", {
-        replace: true,
-      })
+navigate("/login", {
+  replace: true,
+})
     } catch (err) {
       setError(
         err instanceof Error

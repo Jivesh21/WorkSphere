@@ -82,15 +82,7 @@ function AuthProvider({
   const register = async (
     credentials: RegisterRequest,
   ) => {
-    const response = await registerRequest(credentials)
-
-    localStorage.setItem(
-      TOKEN_KEY,
-      response.accessToken,
-    )
-
-    setAccessToken(response.accessToken)
-    setUser(response.user)
+    await registerRequest(credentials)
   }
 
   const logout = async () => {
