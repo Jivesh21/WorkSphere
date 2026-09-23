@@ -7,6 +7,7 @@ import com.worksphere.common.exception.ConflictException;
 import com.worksphere.common.exception.UnauthorizedException;
 import com.worksphere.security.CustomUserDetails;
 import com.worksphere.security.JwtService;
+import com.worksphere.security.TokenRevocationStore;
 import com.worksphere.user.dto.UserResponse;
 import com.worksphere.user.entity.Role;
 import com.worksphere.user.entity.User;
@@ -16,21 +17,32 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenRevocationStore tokenRevocationStore;
 
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService
+            JwtService jwtService,
+            TokenRevocationStore tokenRevocationStore
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.tokenRevocationStore = tokenRevocationStore;
+    }
+
+    public void logout(String token) {
+        String tokenId = jwtService.extractTokenId(token);
+        Instant expiresAt = jwtService.extractExpiration(token);
+        tokenRevocationStore.revoke(tokenId, expiresAt);
     }
 
     @Transactional
