@@ -2,10 +2,13 @@ import {
   BarChart3,
   Bell,
   BriefcaseBusiness,
+  ChevronDown,
+  ChevronLeft,
   CircleHelp,
   FolderKanban,
   LayoutDashboard,
   ListChecks,
+  MoreHorizontal,
   Settings,
   ShieldAlert,
   Sparkles,
@@ -86,46 +89,46 @@ function Sidebar() {
   }
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 hidden w-[308px] flex-col border-r border-white/[0.08] bg-[#0b0b0b] text-white lg:flex">
-      {/* Brand */}
-      <div className="flex h-[70px] shrink-0 items-center justify-between border-b border-white/[0.08] px-5">
+    <aside className="fixed inset-y-0 left-0 z-50 hidden w-[280px] flex-col border-r border-white/[0.08] bg-[#0b0b0b] text-white shadow-[10px_0_28px_rgba(0,0,0,0.18)] lg:flex">
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#0b0b0b]/80 px-4">
         <Link
           to="/dashboard"
-          className="flex items-center gap-3"
+          className="flex min-w-0 items-center gap-3 rounded-md px-1.5 py-1 text-left outline-none transition-colors hover:bg-white/[0.055] focus-visible:ring-2 focus-visible:ring-white/20"
         >
-          <div className="flex size-9 items-center justify-center rounded-xl bg-white text-black">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/5 text-white shadow">
             <Sparkles
               className="size-[18px]"
               strokeWidth={2.2}
             />
           </div>
 
-          <div className="leading-none">
+          <div className="min-w-0 leading-none">
             <p className="text-[15px] font-semibold tracking-tight">
               WorkSphere
             </p>
 
-            <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/40">
-              Work Management
+            <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.18em] text-white/35">
+              Productivity
             </p>
           </div>
         </Link>
 
         <button
           type="button"
-          className="flex size-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.06] hover:text-white"
+          className="flex size-7 shrink-0 items-center justify-center rounded-md text-white/40 outline-none transition-colors hover:bg-white/[0.055] hover:text-white focus-visible:ring-2 focus-visible:ring-white/20"
           aria-label="Collapse sidebar"
         >
-          <span className="text-sm">‹</span>
+          <ChevronLeft
+            className="size-4"
+            strokeWidth={2}
+          />
         </button>
       </div>
 
-      {/* Navigation */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-5">
-        {/* Workspace switcher */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
         <button
           type="button"
-          className="mb-7 flex w-full items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3 text-left transition hover:bg-white/[0.05]"
+          className="group mb-7 flex w-full items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3 text-left outline-none transition-colors hover:border-white/[0.12] hover:bg-white/[0.055] focus-visible:ring-2 focus-visible:ring-white/20"
         >
           <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white text-sm font-semibold text-black">
             W
@@ -141,9 +144,7 @@ function Sidebar() {
             </p>
           </div>
 
-          <span className="text-xs text-white/40">
-            ˅
-          </span>
+          <ChevronDown className="size-3.5 shrink-0 text-white/35 transition-transform group-hover:rotate-180" />
         </button>
 
         <NavigationSection
@@ -164,7 +165,7 @@ function Sidebar() {
           isActive={isActive}
         />
 
-        <div className="mt-7">
+        <div className="mt-6">
           <NavItem
             label="Help & Support"
             href="/help"
@@ -174,17 +175,16 @@ function Sidebar() {
         </div>
       </div>
 
-      {/* User — always at bottom */}
-      <div className="shrink-0 border-t border-white/[0.08] p-3">
+      <div className="shrink-0 border-t border-white/[0.08] bg-[#0b0b0b]/80 p-3">
         <button
           type="button"
-          className="flex w-full items-center gap-3 rounded-xl p-2 transition hover:bg-white/[0.05]"
+          className="group flex w-full items-center gap-3 rounded-xl p-2 text-left outline-none transition-colors hover:bg-white/[0.055] focus-visible:ring-2 focus-visible:ring-white/20"
         >
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/[0.1] text-xs font-semibold">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/[0.1] text-xs font-semibold text-white">
             JS
           </div>
 
-          <div className="min-w-0 flex-1 text-left">
+          <div className="min-w-0 flex-1">
             <p className="truncate text-[13px] font-semibold">
               Jivesh Sharma
             </p>
@@ -194,9 +194,7 @@ function Sidebar() {
             </p>
           </div>
 
-          <span className="text-lg leading-none tracking-[0.1em] text-white/30">
-            ···
-          </span>
+          <MoreHorizontal className="size-4 shrink-0 text-white/35 transition-colors group-hover:text-white/70" />
         </button>
       </div>
     </aside>
@@ -220,8 +218,8 @@ function NavigationSection({
   isActive,
 }: NavigationSectionProps) {
   return (
-    <section className="mb-7">
-      <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
+    <section className="mb-7" aria-label={title}>
+      <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/30">
         {title}
       </p>
 
@@ -259,10 +257,11 @@ function NavItem({
   return (
     <Link
       to={href}
+      aria-current={active ? "page" : undefined}
       className={[
-        "group flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] font-medium transition-all",
+        "group flex h-9 w-full items-center gap-3 rounded-lg border-l-2 border-transparent px-3 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-white/20",
         active
-          ? "bg-white text-black"
+          ? "border-l-white/60 bg-white/[0.03] text-white"
           : "text-white/55 hover:bg-white/[0.055] hover:text-white",
       ].join(" ")}
     >
@@ -270,7 +269,7 @@ function NavItem({
         className={[
           "size-[17px] shrink-0 transition-colors",
           active
-            ? "text-black"
+            ? "text-white"
             : "text-white/40 group-hover:text-white/80",
         ].join(" ")}
         strokeWidth={1.8}
@@ -285,8 +284,8 @@ function NavItem({
           className={[
             "flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
             active
-              ? "bg-black/10 text-black"
-              : "bg-red-500/15 text-red-400",
+              ? "bg-white/15 text-white"
+              : "bg-red-500/15 text-red-300",
           ].join(" ")}
         >
           {badge}
