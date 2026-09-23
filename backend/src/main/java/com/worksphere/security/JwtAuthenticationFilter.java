@@ -23,15 +23,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
     private final RestAuthenticationEntryPoint authenticationEntryPoint;
+    private final TokenRevocationStore tokenRevocationStore;
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
             CustomUserDetailsService userDetailsService,
-            RestAuthenticationEntryPoint authenticationEntryPoint
+            RestAuthenticationEntryPoint authenticationEntryPoint,
+            TokenRevocationStore tokenRevocationStore
     ) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
         this.authenticationEntryPoint = authenticationEntryPoint;
+        this.tokenRevocationStore = tokenRevocationStore;
     }
 
     @Override
@@ -53,6 +56,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
+            String tokenId = jwtService.extractTokenId(token);
+            if (tokenRevocationStore.isRevoked(tokenId)) {
+                SecurityContextHolder.clearContext();
+                authenticationEntryPoint.commence(request, response, "Invalid or expired token");
+                return;
+            }
+
             Long userId = jwtService.extractUserId(token);
             UserDetails userDetails = userDetailsService.loadUserById(userId);
             if (!userDetails.isEnabled()) {

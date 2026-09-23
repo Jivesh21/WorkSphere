@@ -37,10 +37,11 @@ public class SecurityConfig {
             JwtService jwtService,
             CustomUserDetailsService userDetailsService,
             RestAuthenticationEntryPoint authenticationEntryPoint,
-            RestAccessDeniedHandler accessDeniedHandler
+            RestAccessDeniedHandler accessDeniedHandler,
+            TokenRevocationStore tokenRevocationStore
     ) throws Exception {
         JwtAuthenticationFilter jwtAuthenticationFilter =
-                new JwtAuthenticationFilter(jwtService, userDetailsService, authenticationEntryPoint);
+                new JwtAuthenticationFilter(jwtService, userDetailsService, authenticationEntryPoint, tokenRevocationStore);
 
         http
                 .csrf(AbstractHttpConfigurer::disable)

@@ -180,6 +180,17 @@ class AuthApiTest {
     }
 
     @Test
+    void protectedEndpointRejectsTamperedToken() throws Exception {
+        String token = registerAndGetToken("ada@example.com", "password123");
+
+        mockMvc.perform(get("/api/auth/me")
+                        .header("Authorization", "Bearer " + token + "tamper"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.message").value("Invalid or expired token"));
+    }
+
+    @Test
     void logoutRequiresAuthenticationAndSucceedsWithToken() throws Exception {
         mockMvc.perform(post("/api/auth/logout"))
                 .andExpect(status().isUnauthorized());
@@ -190,6 +201,88 @@ class AuthApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Logout successful"));
+    }
+
+    @Test
+    void logoutRevokesTokenAndReusingSameTokenFails() throws Exception {
+        String token = registerAndGetToken("ada@example.com", "password123");
+
+        mockMvc.perform(get("/api/auth/me")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.email").value("ada@example.com"));
+
+        mockMvc.perform(post("/api/auth/logout")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Logout successful"));
+
+        mockMvc.perform(get("/api/auth/me")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.message").value("Invalid or expired token"));
+    }
+
+    @Test
+    void loginTwice_logoutFirstToken_firstTokenRejected_secondTokenStillValid() throws Exception {
+        registerUser("ada@example.com", "password123");
+
+        String tokenA = loginAndGetToken("ada@example.com", "password123");
+        String tokenB = loginAndGetToken("ada@example.com", "password123");
+
+        assertThat(tokenA).isNotEqualTo(tokenB);
+
+        mockMvc.perform(post("/api/auth/logout")
+                        .header("Authorization", "Bearer " + tokenA))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+
+        mockMvc.perform(get("/api/auth/me")
+                        .header("Authorization", "Bearer " + tokenA))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Invalid or expired token"));
+
+        mockMvc.perform(get("/api/auth/me")
+                        .header("Authorization", "Bearer " + tokenB))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.email").value("ada@example.com"));
+    }
+
+    @Test
+    void logoutCannotBeCalledWithAlreadyRevokedToken() throws Exception {
+        String token = registerAndGetToken("ada@example.com", "password123");
+
+        mockMvc.perform(post("/api/auth/logout")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/auth/logout")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Invalid or expired token"));
+    }
+
+    @Test
+    void logoutDoesNotRevokeOtherUserToken() throws Exception {
+        String tokenA = registerAndGetToken("ada@example.com", "password123");
+        String tokenB = registerAndGetToken("charles@example.com", "password123");
+
+        mockMvc.perform(post("/api/auth/logout")
+                        .header("Authorization", "Bearer " + tokenA))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/auth/me")
+                        .header("Authorization", "Bearer " + tokenA))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(get("/api/auth/me")
+                        .header("Authorization", "Bearer " + tokenB))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.email").value("charles@example.com"));
     }
 
     private void registerUser(String email, String password) throws Exception {
@@ -216,6 +309,24 @@ class AuthApiTest {
                                 }
                                 """.formatted(email, password)))
                 .andExpect(status().isCreated())
+                .andReturn();
+
+        String body = result.getResponse().getContentAsString();
+        int start = body.indexOf("\"accessToken\":\"") + "\"accessToken\":\"".length();
+        int end = body.indexOf('"', start);
+        return body.substring(start, end);
+    }
+
+    private String loginAndGetToken(String email, String password) throws Exception {
+        MvcResult result = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "email": "%s",
+                                  "password": "%s"
+                                }
+                                """.formatted(email, password)))
+                .andExpect(status().isOk())
                 .andReturn();
 
         String body = result.getResponse().getContentAsString();

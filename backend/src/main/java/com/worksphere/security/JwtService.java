@@ -12,6 +12,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class JwtService {
@@ -34,6 +35,7 @@ public class JwtService {
     public String generateToken(User user, long expirationMs) {
         Instant now = Instant.now();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(String.valueOf(user.getId()))
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole().name())
@@ -47,10 +49,26 @@ public class JwtService {
         return Long.parseLong(parseClaims(token).getSubject());
     }
 
+    public String extractTokenId(String token) {
+        String jti = parseClaims(token).getId();
+        if (!StringUtils.hasText(jti)) {
+            throw new JwtException("Token missing JTI");
+        }
+        return jti;
+    }
+
+    public Instant extractExpiration(String token) {
+        Date expiration = parseClaims(token).getExpiration();
+        if (expiration == null) {
+            throw new JwtException("Token missing expiration");
+        }
+        return expiration.toInstant();
+    }
+
     public boolean isValid(String token) {
         try {
-            parseClaims(token);
-            return true;
+            Claims claims = parseClaims(token);
+            return StringUtils.hasText(claims.getId());
         } catch (JwtException | IllegalArgumentException ex) {
             return false;
         }

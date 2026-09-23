@@ -28,6 +28,37 @@ class JwtServiceTest {
         assertThat(token).isNotBlank();
         assertThat(jwtService.isValid(token)).isTrue();
         assertThat(jwtService.extractUserId(token)).isEqualTo(42L);
+        assertThat(jwtService.extractTokenId(token)).isNotBlank();
+        assertThat(jwtService.extractExpiration(token)).isAfter(java.time.Instant.now());
+    }
+
+    @Test
+    void eachGeneratedTokenHasUniqueJti() {
+        User user = sampleUser();
+
+        String token1 = jwtService.generateToken(user);
+        String token2 = jwtService.generateToken(user);
+
+        assertThat(token1).isNotEqualTo(token2);
+        assertThat(jwtService.extractTokenId(token1)).isNotEqualTo(jwtService.extractTokenId(token2));
+    }
+
+    @Test
+    void tokenWithoutJtiIsInvalid() {
+        // Build valid HMAC token without JTI claim
+        java.time.Instant now = java.time.Instant.now();
+        javax.crypto.SecretKey key = io.jsonwebtoken.security.Keys.hmacShaKeyFor(
+                "test-secret-must-be-at-least-thirty-two-characters-long".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String tokenWithoutJti = io.jsonwebtoken.Jwts.builder()
+                .subject("42")
+                .issuedAt(java.util.Date.from(now))
+                .expiration(java.util.Date.from(now.plusSeconds(3600)))
+                .signWith(key)
+                .compact();
+
+        assertThat(jwtService.isValid(tokenWithoutJti)).isFalse();
+        org.junit.jupiter.api.Assertions.assertThrows(io.jsonwebtoken.JwtException.class, () ->
+                jwtService.extractTokenId(tokenWithoutJti));
     }
 
     @Test
