@@ -1,0 +1,22 @@
+package com.worksphere.activity.entity;
+
+public enum ActivityType {
+
+    TASK_CREATED,
+    TASK_UPDATED,
+    TASK_ASSIGNED,
+    TASK_STATUS_CHANGED,
+
+    ISSUE_CREATED,
+    ISSUE_UPDATED,
+    ISSUE_ASSIGNED,
+    ISSUE_STATUS_CHANGED,
+
+    SPRINT_CREATED,
+    SPRINT_STARTED,
+    SPRINT_COMPLETED,
+
+    COMMENT_ADDED,
+    COMMENT_UPDATED,
+    COMMENT_DELETED
+}
