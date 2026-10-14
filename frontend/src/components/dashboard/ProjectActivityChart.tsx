@@ -20,20 +20,20 @@ const activityData = [
 
 function ProjectActivityChart() {
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card">
+    <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#111113]">
       {/* Header */}
-      <div className="flex flex-col gap-3 px-5 pb-1 pt-5 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-2.5 px-5 pb-1 pt-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-sm font-semibold tracking-tight">
+          <h2 className="text-sm font-semibold tracking-tight text-[#F4F4F6]">
             Project Activity
           </h2>
 
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-xs text-[#9A9AA2]">
             Tasks completed across your workspace
           </p>
         </div>
 
-        <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
+        <div className="flex items-center gap-4 text-[10px] text-[#9A9AA2]">
           <div className="flex items-center gap-1.5">
             <span className="size-1.5 rounded-full bg-cyan-400" />
             Completed
@@ -47,7 +47,7 @@ function ProjectActivityChart() {
       </div>
 
       {/* Chart */}
-      <div className="h-[240px] w-full px-2 pb-4 pt-3 sm:h-[255px]">
+      <div className="h-[250px] w-full px-3 pb-5 pt-2">
         <ResponsiveContainer
           width="100%"
           height="100%"
@@ -55,15 +55,23 @@ function ProjectActivityChart() {
           <LineChart
             data={activityData}
             margin={{
-              top: 12,
-              right: 18,
-              left: -18,
+              top: 8,
+              right: 16,
+              left: 0,
               bottom: 0,
             }}
           >
             <CartesianGrid
               vertical={false}
-              stroke="rgba(255,255,255,0.055)"
+              horizontalCoordinatesGenerator={({ height }) => {
+                const lines: number[] = []
+                for (let i = 1; i <= 4; i++) {
+                  lines.push((height / 4) * i)
+                }
+                return lines
+              }}
+              stroke="rgba(255,255,255,0.05)"
+              strokeWidth={0.5}
             />
 
             <XAxis
@@ -71,63 +79,76 @@ function ProjectActivityChart() {
               axisLine={false}
               tickLine={false}
               tick={{
-                fill: "rgba(255,255,255,0.38)",
-                fontSize: 10,
+                fill: "rgba(255,255,255,0.35)",
+                fontSize: 10.5,
+                fontWeight: 500,
               }}
-              dy={8}
+              dy={10}
             />
 
             <YAxis
               axisLine={false}
               tickLine={false}
               tick={{
-                fill: "rgba(255,255,255,0.28)",
+                fill: "rgba(255,255,255,0.25)",
                 fontSize: 10,
               }}
-              width={32}
+              width={36}
+              tickCount={4}
             />
 
             <Tooltip
               cursor={{
-                stroke: "rgba(255,255,255,0.1)",
+                stroke: "rgba(255,255,255,0.08)",
+                strokeWidth: 1,
               }}
               contentStyle={{
-                background: "#171717",
+                background: "#111113",
                 border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "10px",
-                color: "#fff",
-                fontSize: "11px",
-                padding: "8px 10px",
+                borderRadius: "8px",
+                color: "#F4F4F6",
+                fontSize: "11.5px",
+                padding: "9px 12px",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
               }}
               labelStyle={{
-                color: "rgba(255,255,255,0.55)",
-                marginBottom: "4px",
+                color: "#9A9AA2",
+                marginBottom: "5px",
+                fontSize: "10.5px",
+                fontWeight: 500,
               }}
+              
             />
 
             <Line
               type="monotone"
               dataKey="completed"
               stroke="#22d3ee"
-              strokeWidth={2}
+              strokeWidth={2.2}
               dot={false}
               activeDot={{
-                r: 4,
+                r: 4.5,
                 strokeWidth: 0,
+                fill: "#22d3ee",
               }}
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
 
             <Line
               type="monotone"
               dataKey="issues"
               stroke="#f87171"
-              strokeWidth={1.5}
-              strokeDasharray="4 4"
+              strokeWidth={1.6}
+              strokeDasharray="5 4"
               dot={false}
               activeDot={{
-                r: 3,
+                r: 3.5,
                 strokeWidth: 0,
+                fill: "#f87171",
               }}
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </LineChart>
         </ResponsiveContainer>

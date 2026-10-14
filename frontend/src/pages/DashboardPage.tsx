@@ -45,34 +45,34 @@ function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto w-full max-w-[1600px] space-y-6">
+      <div className="mx-auto w-full max-w-[1600px] space-y-8">
         {/* Header */}
         <section className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
           <div>
-            <p className="text-xs font-medium text-muted-foreground">
+            <p className="text-xs font-medium text-[#9A9AA2] tracking-wide uppercase">
               {formattedDate}
             </p>
 
-            <h1 className="mt-2 text-[32px] font-semibold tracking-[-0.045em] sm:text-[38px]">
+            <h1 className="mt-2.5 text-[34px] font-semibold tracking-[-0.03em] text-[#F4F4F6] sm:text-[40px]">
               {greeting}, Jivesh
             </h1>
 
-            <p className="mt-1.5 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-[#9A9AA2] leading-relaxed">
               Here's what's happening across your workspace.
             </p>
           </div>
 
           <button
             type="button"
-            className="inline-flex h-10 w-fit items-center gap-2 rounded-xl border bg-card px-3.5 text-sm font-medium transition hover:bg-white/[0.04]"
+            className="inline-flex h-10 w-fit items-center gap-2 rounded-xl border border-white/10 bg-[#111113] px-4 text-sm font-medium text-[#9A9AA2] transition-colors hover:bg-white/5 hover:text-[#F4F4F6] hover:border-white/15"
           >
-            <CalendarDays className="size-4 text-muted-foreground" />
+            <CalendarDays className="size-4" />
             This week
           </button>
         </section>
 
         {/* KPI Cards */}
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             label="Project health"
             value="82%"
@@ -109,18 +109,18 @@ function DashboardPage() {
         </section>
 
         {/* Activity + Sprint */}
-        <section className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.85fr)]">
+        <section className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.85fr)]">
           <ProjectActivityChart />
 
           <SprintProgress />
         </section>
 
         {/* Projects + Deadlines */}
-<section className="grid min-w-0 grid-cols-1 items-start gap-3 xl:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.85fr)]">
-  <ActiveProjects />
+        <section className="grid min-w-0 grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.85fr)]">
+          <ActiveProjects />
 
-  <UpcomingDeadlines />
-</section>
+          <UpcomingDeadlines />
+        </section>
       </div>
     </DashboardLayout>
   )

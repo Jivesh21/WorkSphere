@@ -23,35 +23,35 @@ function StatCard({
   const isPositive = trendDirection === "up"
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.025]">
+    <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#111113] p-5 transition-all duration-200 hover:border-white/15 hover:bg-white/3">
       {/* Top row */}
       <div className="flex items-start justify-between gap-3">
-        <p className="text-[12px] font-medium text-muted-foreground">
+        <p className="text-[12px] font-medium text-[#9A9AA2] tracking-wide uppercase">
           {label}
         </p>
 
         <div
           className={[
-            "flex size-9 shrink-0 items-center justify-center rounded-xl",
-            "bg-white/[0.045] ring-1 ring-inset ring-white/[0.05]",
+            "flex size-10 shrink-0 items-center justify-center rounded-xl",
+            "bg-white/5 ring-1 ring-inset ring-white/5",
             iconClassName,
           ].join(" ")}
         >
           <Icon
-            className="size-[17px]"
+            className="size-[18px]"
             strokeWidth={1.8}
           />
         </div>
       </div>
 
       {/* Value */}
-      <div className="mt-4">
-        <p className="text-[30px] font-semibold leading-none tracking-[-0.045em]">
+      <div className="mt-5">
+        <p className="text-[32px] font-semibold leading-none tracking-[-0.03em] text-[#F4F4F6]">
           {value}
         </p>
 
         {/* Meta */}
-        <div className="mt-3 flex min-h-4 items-center gap-2 text-[11px]">
+        <div className="mt-3.5 flex min-h-4 items-center gap-2 text-[11px]">
           {trend && (
             <span
               className={[
@@ -71,7 +71,7 @@ function StatCard({
             </span>
           )}
 
-          <span className="truncate text-muted-foreground">
+          <span className="truncate text-[#9A9AA2]">
             {description}
           </span>
         </div>
