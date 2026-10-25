@@ -1,6 +1,7 @@
 package com.worksphere.common.exception;
 
 import com.worksphere.common.response.ApiResponse;
+import com.worksphere.assistant.service.AssistantServiceException;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,11 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(AssistantServiceException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAssistantService(AssistantServiceException ex) {
+        return ResponseEntity.status(ex.getStatus()).body(ApiResponse.fail(ex.getMessage()));
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(ResourceNotFoundException ex) {
