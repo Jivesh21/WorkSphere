@@ -10,12 +10,12 @@ function SummaryCard({
   description,
 }: SummaryCardProps) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
+    <div className="rounded-xl border border-border bg-card p-3.5">
       <p className="text-xs font-medium text-muted-foreground">
         {label}
       </p>
 
-      <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+      <p className="mt-2 text-xl font-semibold tracking-tight">
         {value}
       </p>
 

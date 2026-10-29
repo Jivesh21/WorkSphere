@@ -14,24 +14,24 @@ function TeamSummaryCard({
   description,
 }: TeamSummaryCardProps) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm text-muted-foreground">
             {label}
           </p>
 
-          <p className="mt-2 text-2xl font-semibold tracking-tight">
+          <p className="mt-1.5 text-xl font-semibold tracking-tight">
             {value}
           </p>
         </div>
 
-        <div className="rounded-xl bg-muted p-2.5">
-          <Icon className="h-4 w-4 text-muted-foreground" />
+        <div className="rounded-lg border border-border bg-muted/50 p-2">
+          <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
         </div>
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground">
+      <p className="mt-2 text-xs text-muted-foreground">
         {description}
       </p>
     </div>

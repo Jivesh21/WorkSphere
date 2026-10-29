@@ -172,6 +172,14 @@ function LoginPage() {
               Create one
             </Link>
           </p>
+          {import.meta.env.DEV && (
+            <p className="mt-4 text-center text-xs text-[#9A9AA2] auth-fade-up auth-delay-3">
+              Just looking around?{" "}
+              <Link to="/dev-preview" className="font-medium text-[#818CF8] transition-colors hover:text-[#A5B4FC]">
+                Open local UI preview
+              </Link>
+            </p>
+          )}
         </div>
       </div>
     </main>

@@ -1,462 +1,279 @@
-import { useMemo, useState } from "react"
-import {
-  ArrowUpRight,
-  CalendarDays,
-  Check,
-  ChevronDown,
-  FolderKanban,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Users,
-} from "lucide-react"
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
+import { CalendarDays, FolderKanban, Info, LayoutGrid, List, Pencil, Plus, Search, X } from "lucide-react"
+import { useLocation, useNavigate } from "react-router-dom"
+import * as m from "motion/react-m"
 
 import CreateProjectModal from "@/components/projects/CreateProjectModal"
 import DashboardLayout from "@/components/layout/DashboardLayout"
+import { projectAccentOptions, projectIconOptions, type Project, type ProjectStatus } from "@/constants/projects"
+import { cardHover } from "@/lib/motion"
+import useProjects from "@/hooks/useProjects"
 
-import {
-  initialProjects,
-  type Project,
-} from "@/constants/projects"
+const statusFilters: Array<"All" | ProjectStatus> = ["All", "Active", "Planning", "Completed"]
+type ProjectView = "grid" | "list"
 
-const statusFilters = [
-  "All",
-  "Active",
-  "Planning",
-  "Completed",
-] as const
+const projectStatusTone: Record<ProjectStatus, string> = {
+  Active: "bg-chart-2/10 text-chart-2",
+  Planning: "bg-chart-5/10 text-chart-5",
+  Completed: "bg-chart-4/10 text-chart-4",
+}
 
-type StatusFilter = (typeof statusFilters)[number]
+const projectStatusDot: Record<ProjectStatus, string> = {
+  Active: "bg-chart-2",
+  Planning: "bg-chart-5",
+  Completed: "bg-chart-4",
+}
 
 function ProjectsPage() {
-  const [projectList, setProjectList] =
-    useState<Project[]>(initialProjects)
-
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { projects: projectList, setProjects: setProjectList } = useProjects()
   const [search, setSearch] = useState("")
+  const [activeStatus, setActiveStatus] = useState<(typeof statusFilters)[number]>("All")
+  const [view, setView] = useState<ProjectView>("grid")
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingProject, setEditingProject] = useState<Project | null>(null)
+  const [creationNotice, setCreationNotice] = useState("")
+  const closeCreateModal = useCallback(() => {
+    setShowCreateModal(false)
+    setEditingProject(null)
+  }, [])
 
-  const [activeStatus, setActiveStatus] =
-    useState<StatusFilter>("All")
-
-  const [showStatusMenu, setShowStatusMenu] =
-    useState(false)
-
-  const [showCreateModal, setShowCreateModal] =
-    useState(false)
+  useEffect(() => {
+    if ((location.state as { quickCreate?: string } | null)?.quickCreate !== "project") return
+    setEditingProject(null)
+    setShowCreateModal(true)
+    navigate(location.pathname, { replace: true, state: null })
+  }, [location.pathname, location.state, navigate])
 
   const visibleProjects = useMemo(() => {
-    const normalizedSearch =
-      search.trim().toLowerCase()
-
+    const normalizedSearch = search.trim().toLocaleLowerCase()
     return projectList.filter((project) => {
-      const matchesSearch =
-        normalizedSearch.length === 0 ||
-        project.name
-          .toLowerCase()
-          .includes(normalizedSearch) ||
-        project.code
-          .toLowerCase()
-          .includes(normalizedSearch) ||
-        project.description
-          .toLowerCase()
-          .includes(normalizedSearch)
-
-      const matchesStatus =
-        activeStatus === "All" ||
-        project.status === activeStatus
-
-      return matchesSearch && matchesStatus
+      const matchesSearch = normalizedSearch.length === 0
+        || project.name.toLocaleLowerCase().includes(normalizedSearch)
+        || project.code.toLocaleLowerCase().includes(normalizedSearch)
+      return matchesSearch && (activeStatus === "All" || project.status === activeStatus)
     })
   }, [projectList, search, activeStatus])
 
-  const activeProjects = projectList.filter(
-    (project) => project.status === "Active",
-  ).length
-
-  const teamMembers = projectList.reduce(
-    (total, project) => total + project.members,
-    0,
-  )
-
-  const dueSoon = projectList.filter(
-    (project) =>
-      project.status !== "Completed" &&
-      ["Aug 30", "Sep 04"].includes(
-        project.dueDate,
-      ),
-  ).length
-
-  function handleCreateProject(
-    project: Project,
-  ) {
-    setProjectList((currentProjects) => [
-      project,
-      ...currentProjects,
-    ])
-
+  function handleCreateProject(project: Project): string | undefined {
+    if (projectList.some((item) => item.code.toLowerCase() === project.code.toLowerCase())) {
+      return `A project with code ${project.code} already exists.`
+    }
+    setProjectList((currentProjects) => [project, ...currentProjects])
+    setSearch("")
+    setActiveStatus("All")
+    setCreationNotice(`${project.name} was created in this session.`)
     setShowCreateModal(false)
+    return undefined
+  }
 
+  function handleUpdateProject(project: Project): string | undefined {
+    if (projectList.some((item) => item.id !== project.id && item.code.toLowerCase() === project.code.toLowerCase())) {
+      return `A project with code ${project.code} already exists.`
+    }
+    setProjectList((currentProjects) => currentProjects.map((item) => item.id === project.id ? project : item))
+    setSearch("")
+    setActiveStatus("All")
+    setCreationNotice(`${project.name} was updated in this session.`)
+    closeCreateModal()
+    return undefined
+  }
+
+  function openCreateProject() {
+    setEditingProject(null)
+    setShowCreateModal(true)
+  }
+
+  function openEditProject(project: Project) {
+    setEditingProject(project)
+    setShowCreateModal(true)
+  }
+
+  const hasActiveFilters = search.trim().length > 0 || activeStatus !== "All"
+
+  function clearFilters() {
     setSearch("")
     setActiveStatus("All")
   }
 
   return (
     <DashboardLayout>
-      <div className="mx-auto w-full max-w-[1600px] space-y-6">
-        {/* Header */}
-        <section className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">
-              Workspace
-            </p>
-
-            <h1 className="mt-2 text-[32px] font-semibold tracking-[-0.045em] sm:text-[38px]">
-              Projects
-            </h1>
-
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              Manage projects, progress, teams, and deadlines.
-            </p>
+      <div className="mx-auto w-full max-w-[1500px] space-y-4 pb-8">
+        <header className="flex flex-col gap-3 border-b border-border/70 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-semibold leading-tight tracking-tight text-foreground">Projects</h1>
+              <span className="rounded-md border border-border/80 bg-card px-2 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+                {projectList.length} {projectList.length === 1 ? "project" : "projects"}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">Organize initiatives and keep project details in one place.</p>
           </div>
-
           <button
             type="button"
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-foreground px-4 text-sm font-medium text-background transition hover:opacity-90"
+            onClick={openCreateProject}
+            className="inline-flex h-9 w-fit shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-3.5 text-xs font-medium text-primary-foreground outline-none transition-[opacity,box-shadow] hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
           >
-            <Plus className="size-4" />
-            New project
+            <Plus className="size-3.5" aria-hidden="true" /> Create project
           </button>
-        </section>
+        </header>
 
-        {/* Summary */}
-        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <SummaryCard
-            icon={FolderKanban}
-            label="Total projects"
-            value={String(projectList.length)}
-            description="across workspace"
-          />
+        <p className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3.5 py-3 text-xs font-semibold leading-5 text-foreground sm:text-sm">
+          <Info className="size-4 shrink-0 text-primary" aria-hidden="true" />
+          Projects are held in this page session and are not saved to an account or backend.
+        </p>
 
-          <SummaryCard
-            icon={FolderKanban}
-            label="Active"
-            value={String(activeProjects)}
-            description="currently in progress"
-          />
+        {creationNotice && (
+          <p role="status" className="flex items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-foreground">
+            {creationNotice}
+            <button type="button" onClick={() => setCreationNotice("")} className="rounded px-2 py-1 text-[10px] font-medium text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">Dismiss</button>
+          </p>
+        )}
 
-          <SummaryCard
-            icon={Users}
-            label="Team members"
-            value={String(teamMembers)}
-            description="across all projects"
-          />
-
-          <SummaryCard
-            icon={CalendarDays}
-            label="Due soon"
-            value={String(dueSoon)}
-            description="within 7 days"
-          />
-        </section>
-
-        {/* Project workspace */}
-        <section className="overflow-hidden rounded-2xl border border-border bg-card">
-          {/* Toolbar */}
-          <div className="flex flex-col gap-3 border-b border-border p-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="relative w-full lg:max-w-[360px]">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
+        <section aria-label="Project list" className="space-y-3">
+          <div className="flex min-w-0 flex-col gap-2 rounded-lg border border-border/80 bg-card p-2 sm:flex-row sm:items-center">
+            <div className="relative w-full sm:max-w-xs">
+              <label htmlFor="project-search" className="sr-only">Search projects by name or code</label>
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <input
-                type="text"
+                id="project-search"
+                type="search"
                 value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
-                placeholder="Search projects..."
-                className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-foreground/30"
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search projects"
+                className="h-8 w-full rounded-md border border-input bg-background pl-8 pr-8 text-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/35"
               />
-            </div>
-
-            {/* Status dropdown */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() =>
-                  setShowStatusMenu(
-                    (current) => !current,
-                  )
-                }
-                className={[
-                  "inline-flex h-10 w-fit items-center gap-2 rounded-xl border px-3 text-xs font-medium transition",
-                  activeStatus !== "All"
-                    ? "border-foreground/30 bg-muted text-foreground"
-                    : "border-border text-muted-foreground hover:bg-muted hover:text-foreground",
-                ].join(" ")}
-              >
-                Status
-                <ChevronDown className="size-3.5" />
-              </button>
-
-              {showStatusMenu && (
-                <div className="absolute right-0 top-12 z-20 w-44 rounded-xl border border-border bg-card p-1.5 shadow-xl">
-                  <p className="px-2.5 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Project status
-                  </p>
-
-                  {statusFilters.map((status) => (
-                    <button
-                      key={status}
-                      type="button"
-                      onClick={() => {
-                        setActiveStatus(status)
-                        setShowStatusMenu(false)
-                      }}
-                      className={[
-                        "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs transition",
-                        activeStatus === status
-                          ? "bg-muted font-medium text-foreground"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                      ].join(" ")}
-                    >
-                      {status}
-
-                      {activeStatus === status && (
-                        <Check className="size-3.5" />
-                      )}
-                    </button>
-                  ))}
-                </div>
+              {search && (
+                <button type="button" onClick={() => setSearch("")} aria-label="Clear project search" className="absolute right-1.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
+                  <X className="size-3" aria-hidden="true" />
+                </button>
               )}
             </div>
-          </div>
 
-          {/* Status tabs */}
-          <div className="overflow-x-auto border-b border-border">
-            <div className="flex min-w-max items-center gap-1 px-4">
+            <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto" role="group" aria-label="Filter projects by status">
               {statusFilters.map((status) => {
-                const isActive =
-                  activeStatus === status
-
+                const count = status === "All" ? projectList.length : projectList.filter((project) => project.status === status).length
                 return (
                   <button
                     key={status}
                     type="button"
-                    onClick={() =>
-                      setActiveStatus(status)
-                    }
-                    className={[
-                      "relative px-3 py-3 text-xs font-medium transition-colors",
-                      isActive
-                        ? "text-foreground"
-                        : "text-muted-foreground hover:text-foreground",
-                    ].join(" ")}
+                    aria-pressed={activeStatus === status}
+                    onClick={() => setActiveStatus(status)}
+                    className={`shrink-0 rounded-md px-2.5 py-1.5 text-[10px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${activeStatus === status ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                   >
-                    {status}
-
-                    {isActive && (
-                      <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-foreground" />
-                    )}
+                    {status}<span className={`ml-1.5 tabular-nums ${activeStatus === status ? "text-primary/70" : "text-muted-foreground/70"}`}>{count}</span>
                   </button>
                 )
               })}
             </div>
+
+            <div className="flex shrink-0 items-center gap-0.5 self-end rounded-md border border-border/70 bg-background p-0.5 sm:self-auto" role="group" aria-label="Project view">
+              <button type="button" aria-label="Grid view" aria-pressed={view === "grid"} onClick={() => setView("grid")} className={`inline-flex size-7 items-center justify-center rounded outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring ${view === "grid" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                <LayoutGrid className="size-3.5" aria-hidden="true" />
+              </button>
+              <button type="button" aria-label="List view" aria-pressed={view === "list"} onClick={() => setView("list")} className={`inline-flex size-7 items-center justify-center rounded outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring ${view === "list" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                <List className="size-3.5" aria-hidden="true" />
+              </button>
+            </div>
           </div>
 
-          {/* Projects */}
           {visibleProjects.length > 0 ? (
-            <div className="grid gap-3 p-4 lg:grid-cols-2 xl:grid-cols-3">
-              {visibleProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                />
-              ))}
+            <div className={view === "grid" ? "grid min-w-0 auto-rows-fr gap-3 sm:grid-cols-2 2xl:grid-cols-3" : "grid min-w-0 grid-cols-1 gap-2"}>
+              {visibleProjects.map((project) => <ProjectCard key={project.id} project={project} view={view} onEdit={openEditProject} />)}
             </div>
+          ) : projectList.length === 0 ? (
+            <EmptyState
+              title="No projects yet"
+              description="Create a project to start organizing related work."
+              action={(
+                <button type="button" onClick={openCreateProject} className="mt-3 inline-flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-[10px] font-medium text-primary-foreground outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none">
+                  <Plus className="size-3" aria-hidden="true" /> Create project
+                </button>
+              )}
+            />
+          ) : search.trim() && activeStatus !== "All" ? (
+            <EmptyState title="No projects match these filters" description="No project matches this search and status. Clear the filters to see your projects." action={<button type="button" onClick={clearFilters} className="mt-3 rounded-md px-3 py-1.5 text-[10px] font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Clear filters</button>} />
+          ) : activeStatus !== "All" ? (
+            <EmptyState title={`No ${activeStatus.toLowerCase()} projects`} description="There are no projects with this status yet." action={<button type="button" onClick={() => setActiveStatus("All")} className="mt-3 rounded-md px-3 py-1.5 text-[10px] font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Show all projects</button>} />
+          ) : search.trim() ? (
+            <EmptyState title="No projects match your search" description="Try a different project name or code." action={<button type="button" onClick={() => setSearch("")} className="mt-3 rounded-md px-3 py-1.5 text-[10px] font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Clear search</button>} />
           ) : (
-            <EmptyState search={search} />
+            <EmptyState
+              title="No matching projects"
+              description="Try another name or code, or clear the current filters."
+              action={hasActiveFilters ? (
+                <button type="button" onClick={clearFilters} className="mt-3 rounded-md px-3 py-1.5 text-[10px] font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Clear filters</button>
+              ) : null}
+            />
           )}
         </section>
       </div>
 
-      {/* Create Project Modal */}
-      <CreateProjectModal
-        open={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreate={handleCreateProject}
-      />
+      <CreateProjectModal open={showCreateModal} onClose={closeCreateModal} onCreate={handleCreateProject} onUpdate={handleUpdateProject} initialProject={editingProject} />
     </DashboardLayout>
   )
 }
 
-function SummaryCard({
-  icon: Icon,
-  label,
-  value,
-  description,
-}: {
-  icon: typeof FolderKanban
-  label: string
-  value: string
-  description: string
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="flex items-start justify-between">
-        <p className="text-xs font-medium text-muted-foreground">
-          {label}
-        </p>
-
-        <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
-          <Icon className="size-4 text-muted-foreground" />
-        </div>
-      </div>
-
-      <p className="mt-4 text-2xl font-semibold tracking-[-0.04em]">
-        {value}
-      </p>
-
-      <p className="mt-1 text-[11px] text-muted-foreground">
-        {description}
-      </p>
-    </div>
-  )
-}
-
-function ProjectCard({
-  project,
-}: {
-  project: Project
-}) {
-  const isHealthy = project.health === "On track"
+function ProjectCard({ project, view, onEdit }: { project: Project; view: ProjectView; onEdit: (project: Project) => void }) {
+  const projectIcon = projectIconOptions.find((option) => option.id === project.icon) ?? projectIconOptions[0]
+  const projectAccent = projectAccentOptions.find((option) => option.id === project.accent) ?? projectAccentOptions[0]
+  const ProjectIcon = projectIcon.Icon
 
   return (
-    <article className="group rounded-2xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/15">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <div
-            className={[
-              "flex size-10 shrink-0 items-center justify-center rounded-xl",
-              "text-[10px] font-bold text-white shadow-sm",
-              project.color,
-            ].join(" ")}
-          >
-            {project.code}
-          </div>
-
-          <div className="min-w-0">
-            <h2 className="truncate text-sm font-semibold tracking-tight">
-              {project.name}
-            </h2>
-
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
-              {project.status}
-            </p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          aria-label={`More options for ${project.name}`}
-          className="flex size-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100"
-        >
-          <MoreHorizontal className="size-4" />
-        </button>
-      </div>
-
-      {/* Description */}
-      <p className="mt-3 min-h-8 text-xs leading-5 text-muted-foreground">
-        {project.description}
-      </p>
-
-      {/* Health */}
-      <div className="mt-3 flex items-center justify-between">
-        <span
-          className={[
-            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1",
-            "text-[10px] font-medium",
-            isHealthy
-              ? "bg-emerald-500/10 text-emerald-400"
-              : "bg-amber-500/10 text-amber-400",
-          ].join(" ")}
-        >
-          <span
-            className={[
-              "size-1.5 rounded-full",
-              isHealthy
-                ? "bg-emerald-400"
-                : "bg-amber-400",
-            ].join(" ")}
-          />
-
-          {project.health}
-        </span>
-
-        <span className="text-[11px] text-muted-foreground">
-          {project.completedTasks}/{project.totalTasks} tasks
-        </span>
-      </div>
-
-      {/* Progress */}
-      <div className="mt-3">
-        <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-          <span>Progress</span>
-
-          <span className="font-medium text-foreground">
-            {project.progress}%
+    <m.article
+      {...cardHover}
+      className={`group relative isolate min-w-0 overflow-hidden rounded-lg border border-border/80 bg-card shadow-sm shadow-black/[0.025] transition-[border-color,box-shadow,background-color] hover:border-primary/35 hover:shadow-md hover:shadow-black/[0.06] focus-within:border-primary/40 motion-reduce:transition-none ${view === "grid" ? "flex h-full min-h-[160px] flex-col" : "flex items-stretch"}`}
+    >
+      <span aria-hidden="true" className={`pointer-events-none absolute ${view === "grid" ? "inset-x-0 top-0 h-0.5" : "inset-y-0 left-0 w-0.5"} ${projectAccent.swatch}`} />
+      <div className={`relative flex w-full min-w-0 flex-1 gap-3 p-3.5 ${view === "grid" ? "flex-col" : "flex-col sm:flex-row sm:items-center sm:justify-between sm:pl-4"}`}>
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <span className={`flex size-9 shrink-0 items-center justify-center rounded-md border border-border/70 ${projectAccent.iconBackground} ${projectAccent.icon}`}>
+            <ProjectIcon className="size-4" aria-hidden="true" />
           </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+              <h2 className="min-w-0 truncate text-sm font-semibold tracking-tight text-card-foreground">{project.name}</h2>
+              <span className="rounded border border-border/70 bg-muted/50 px-1.5 py-0.5 font-mono text-[9px] font-medium text-muted-foreground">{project.code}</span>
+            </div>
+            {project.description && <p className="mt-1.5 line-clamp-2 text-[10px] leading-4 text-muted-foreground">{project.description}</p>}
+          </div>
         </div>
 
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-foreground transition-[width] duration-500"
-            style={{
-              width: `${project.progress}%`,
-            }}
-          />
+        <div className={`flex min-w-0 flex-wrap items-center gap-1.5 ${view === "grid" ? "mt-auto border-t border-border/70 pt-3" : "sm:ml-4 sm:shrink-0"}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded px-2 py-1 text-[9px] font-medium ${projectStatusTone[project.status]}`}>
+            <span className={`size-1.5 rounded-full ${projectStatusDot[project.status]}`} aria-hidden="true" />{project.status}
+          </span>
+          {project.health && <span className={`rounded border px-2 py-1 text-[9px] font-medium ${project.health === "At risk" ? "border-destructive/20 bg-destructive/10 text-destructive" : "border-chart-4/20 bg-chart-4/10 text-chart-4"}`}>{project.health}</span>}
+          {project.dueDate && (
+            <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/20 px-2 py-1 text-[9px] text-muted-foreground">
+              <CalendarDays className="size-3" aria-hidden="true" /> Due {formatDueDate(project.dueDate)}
+            </span>
+          )}
+          <button type="button" onClick={() => onEdit(project)} aria-label={`Edit ${project.name}`} className="ml-auto inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring sm:ml-1">
+            <Pencil className="size-3.5" aria-hidden="true" />
+          </button>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-[11px] text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <Users className="size-3" />
-          {project.members} members
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <CalendarDays className="size-3" />
-          {project.dueDate}
-        </div>
-      </div>
-
-      <button
-        type="button"
-        className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
-      >
-        View project
-        <ArrowUpRight className="size-3" />
-      </button>
-    </article>
+    </m.article>
   )
 }
 
-function EmptyState({
-  search,
-}: {
-  search: string
-}) {
-  return (
-    <div className="px-6 py-14 text-center">
-      <p className="text-sm font-medium">
-        No projects found
-      </p>
+function formatDueDate(value: string) {
+  const parsedDate = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(parsedDate.getTime())) return value
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(parsedDate)
+}
 
-      <p className="mt-1 text-xs text-muted-foreground">
-        {search
-          ? `No projects match "${search}".`
-          : "There are no projects in this category."}
-      </p>
+function EmptyState({ title, description, action }: { title: string; description: string; action: ReactNode }) {
+  return (
+    <div className="flex min-h-36 flex-col items-center justify-center px-4 py-7 text-center">
+      <span className="mb-2.5 flex size-9 items-center justify-center rounded-lg border border-border/70 bg-card text-muted-foreground">
+        <FolderKanban className="size-4" aria-hidden="true" />
+      </span>
+      <p className="text-xs font-semibold tracking-tight">{title}</p>
+      <p className="mt-1 max-w-sm text-[10px] leading-4 text-muted-foreground">{description}</p>
+      {action}
     </div>
   )
 }

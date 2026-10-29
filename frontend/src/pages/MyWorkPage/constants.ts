@@ -2,32 +2,19 @@ import type {
   PriorityFilter,
   SortOption,
   TaskPriority,
+  TaskStatus,
+  TaskStatusFilter,
 } from "./types"
 
-export const statusFilters = [
-  "All",
-  "To do",
-  "In progress",
-  "Done",
-] as const
+export const taskStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"]
+export const statusFilters: TaskStatusFilter[] = ["All", ...taskStatuses]
 
-export const priorityFilters: PriorityFilter[] = [
-  "All",
-  "High",
-  "Medium",
-  "Low",
-]
+export const priorityFilters: PriorityFilter[] = ["All", "HIGH", "MEDIUM", "LOW"]
 
-export const sortOptions: SortOption[] = [
-  "Due date",
-  "Priority",
-  "Title",
-]
+export const sortOptions: SortOption[] = ["Due date", "Priority", "Created date", "Title"]
 
 export const priorityOrder: Record<TaskPriority, number> = {
-  High: 1,
-  Medium: 2,
-  Low: 3,
+  HIGH: 1,
+  MEDIUM: 2,
+  LOW: 3,
 }
-
-export const dueDateOrder: Record<string, number> = {}

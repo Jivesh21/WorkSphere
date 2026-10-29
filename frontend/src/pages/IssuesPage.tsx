@@ -1,692 +1,286 @@
-import { useMemo, useState } from "react"
-import {
-  AlertCircle,
-  ArrowUpRight,
-  Check,
-  ChevronDown,
-  CircleDot,
-  Clock3,
-  MoreHorizontal,
-  Plus,
-  Search,
-  TriangleAlert,
-} from "lucide-react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
+import { AlertCircle, Check, CircleDot, Clock3, Kanban, Plus, Search, TriangleAlert, X } from "lucide-react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import * as m from "motion/react-m"
 
 import CreateIssueModal from "@/components/issues/CreateIssueModal"
+import IssueDetailsDialog from "@/components/issues/IssueDetailsDialog"
 import DashboardLayout from "@/components/layout/DashboardLayout"
+import useIssues from "@/hooks/useIssues"
+import { staggerContainer, staggerItem } from "@/lib/motion"
+import { issuePriorities, issueStatuses, type Issue, type IssueFormValues, type IssuePriority, type IssueStatus } from "@/pages/issues/types"
 
-type IssueStatus = "Open" | "In progress" | "Resolved"
-type IssuePriority = "Critical" | "High" | "Medium" | "Low"
+const statusFilters: Array<"All" | IssueStatus> = ["All", ...issueStatuses]
+const priorityFilters: Array<"All" | IssuePriority> = ["All", ...issuePriorities]
 
-interface Issue {
-  id: number
-  key: string
-  title: string
-  project: string
-  status: IssueStatus
-  priority: IssuePriority
-  assignee: string
-  initials: string
-  dueDate: string
-  description?: string
+function formatDate(value: string) {
+  if (!value) return ""
+  const date = new Date(`${value}T00:00:00`)
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(date)
 }
-
-interface CreateIssueData {
-  title: string
-  description: string
-  project: string
-  priority: IssuePriority
-  assignee: string
-  dueDate: string
-}
-
-const statusFilters = [
-  "All",
-  "Open",
-  "In progress",
-  "Resolved",
-] as const
-
-type StatusFilter = (typeof statusFilters)[number]
-
-const priorityFilters = [
-  "All",
-  "Critical",
-  "High",
-  "Medium",
-  "Low",
-] as const
-
-type PriorityFilter = (typeof priorityFilters)[number]
 
 function IssuesPage() {
-  const [issues, setIssues] =
-    useState<Issue[]>([])
-
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { issues, createIssue, updateIssue } = useIssues()
   const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState<(typeof statusFilters)[number]>("All")
+  const [priorityFilter, setPriorityFilter] = useState<(typeof priorityFilters)[number]>("All")
+  const [createOpen, setCreateOpen] = useState(false)
+  const [editingIssue, setEditingIssue] = useState<Issue | null>(null)
+  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null)
 
-  const [statusFilter, setStatusFilter] =
-    useState<StatusFilter>("All")
+  useEffect(() => {
+    if ((location.state as { quickCreate?: string } | null)?.quickCreate !== "issue") return
+    setCreateOpen(true)
+    navigate(location.pathname, { replace: true, state: null })
+  }, [location.pathname, location.state, navigate])
 
-  const [priorityFilter, setPriorityFilter] =
-    useState<PriorityFilter>("All")
-
-  const [showStatusMenu, setShowStatusMenu] =
-    useState(false)
-
-  const [showPriorityMenu, setShowPriorityMenu] =
-    useState(false)
-
-  const [showCreateModal, setShowCreateModal] =
-    useState(false)
+  useEffect(() => {
+    const issueId = (location.state as { openIssue?: number } | null)?.openIssue
+    if (typeof issueId !== "number") return
+    setSelectedIssue(issues.find((issue) => issue.id === issueId) ?? null)
+    navigate(location.pathname, { replace: true, state: null })
+  }, [issues, location.pathname, location.state, navigate])
 
   const visibleIssues = useMemo(() => {
-    const normalizedSearch =
-      search.trim().toLowerCase()
-
+    const query = search.trim().toLocaleLowerCase()
     return issues.filter((issue) => {
-      const matchesSearch =
-        normalizedSearch.length === 0 ||
-        issue.key
-          .toLowerCase()
-          .includes(normalizedSearch) ||
-        issue.title
-          .toLowerCase()
-          .includes(normalizedSearch) ||
-        issue.project
-          .toLowerCase()
-          .includes(normalizedSearch) ||
-        issue.assignee
-          .toLowerCase()
-          .includes(normalizedSearch)
-
-      const matchesStatus =
-        statusFilter === "All" ||
-        issue.status === statusFilter
-
-      const matchesPriority =
-        priorityFilter === "All" ||
-        issue.priority === priorityFilter
-
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesPriority
-      )
+      const matchesSearch = !query || [issue.key, issue.title, issue.project, issue.assignee]
+        .some((value) => value.toLocaleLowerCase().includes(query))
+      const matchesStatus = statusFilter === "All" || issue.status === statusFilter
+      const matchesPriority = priorityFilter === "All" || issue.priority === priorityFilter
+      return matchesSearch && matchesStatus && matchesPriority
     })
-  }, [
-    issues,
-    search,
-    statusFilter,
-    priorityFilter,
-  ])
+  }, [issues, search, statusFilter, priorityFilter])
 
-  const openCount = issues.filter(
-    (issue) => issue.status === "Open",
-  ).length
-
-  const inProgressCount = issues.filter(
-    (issue) => issue.status === "In progress",
-  ).length
-
-  const resolvedCount = issues.filter(
-    (issue) => issue.status === "Resolved",
-  ).length
-
-  const criticalCount = issues.filter(
-    (issue) => issue.priority === "Critical",
-  ).length
-
-  function handleCreateIssue(
-    data: CreateIssueData,
-  ) {
-    const nextId =
-      issues.length > 0
-        ? Math.max(
-            ...issues.map((issue) => issue.id),
-          ) + 1
-        : 1
-
-    const projectCode = data.project
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((word) => word[0])
-      .join("")
-      .slice(0, 3)
-      .toUpperCase()
-
-    const prefix = projectCode || "PRJ"
-
-    const projectIssueNumbers = issues
-      .filter(
-        (issue) => issue.project === data.project,
-      )
-      .map((issue) => {
-        const match = issue.key.match(
-          new RegExp(`^${prefix}-(\\d+)$`),
-        )
-
-        return match
-          ? Number(match[1])
-          : 0
-      })
-
-    const highestProjectNumber =
-      projectIssueNumbers.length > 0
-        ? Math.max(...projectIssueNumbers)
-        : 0
-
-    const nextIssueNumber =
-      highestProjectNumber + 1
-
-    const initials = data.assignee
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((name) => name[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase()
-
-    const formattedDueDate =
-      data.dueDate
-        ? new Date(
-            `${data.dueDate}T00:00:00`,
-          ).toLocaleDateString("en-US", {
-            month: "short",
-            day: "2-digit",
-          })
-        : "No due date"
-
-    const newIssue: Issue = {
-      id: nextId,
-      key: `${prefix}-${nextIssueNumber}`,
-      title: data.title,
-      description: data.description,
-      project: data.project,
-      status: "Open",
-      priority: data.priority,
-      assignee: data.assignee,
-      initials: initials || "NA",
-      dueDate: formattedDueDate,
+  function saveIssue(values: IssueFormValues, existingIssue?: Issue): string | undefined {
+    if (!values.title.trim()) return "Enter an issue title."
+    if (existingIssue) {
+      updateIssue(existingIssue.id, values)
+      setEditingIssue(null)
+      return undefined
     }
 
-    setIssues((currentIssues) => [
-      newIssue,
-      ...currentIssues,
-    ])
-
-    setShowCreateModal(false)
-
+    createIssue(values)
+    setCreateOpen(false)
     setSearch("")
     setStatusFilter("All")
     setPriorityFilter("All")
+    return undefined
   }
 
   return (
     <DashboardLayout>
-      <div className="mx-auto w-full max-w-[1600px] space-y-6">
-        {/* Header */}
-        <section className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">
-              Workspace
-            </p>
-
-            <h1 className="mt-2 text-[32px] font-semibold tracking-[-0.045em] sm:text-[38px]">
-              Issues
-            </h1>
-
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              Track bugs, blockers, and work that needs attention.
-            </p>
+      <div className="mx-auto w-full max-w-[1600px] space-y-6 pb-8">
+        <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div className="min-w-0">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">Workspace</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Issues</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Track bugs, blockers, and work that needs attention.</p>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-foreground px-4 text-sm font-medium text-background transition hover:opacity-90"
-          >
-            <Plus className="size-4" />
-            Create issue
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/board" className="inline-flex h-10 w-fit items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm font-medium text-card-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">
+              <Kanban className="size-4" aria-hidden="true" />Board
+            </Link>
+            <button
+              type="button"
+              onClick={() => setCreateOpen(true)}
+              className="inline-flex h-10 w-fit shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              Create issue
+            </button>
+          </div>
         </section>
 
-        {/* Summary */}
-        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <SummaryCard
-            icon={AlertCircle}
-            label="Open issues"
-            value={String(openCount)}
-            description="need attention"
-          />
+        <p className="rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+          Issues are shared between the Issues and Board views in this app session only. They are not saved to an account or backend yet.
+        </p>
 
-          <SummaryCard
-            icon={Clock3}
-            label="In progress"
-            value={String(inProgressCount)}
-            description="currently being worked on"
-          />
-
-          <SummaryCard
-            icon={Check}
-            label="Resolved"
-            value={String(resolvedCount)}
-            description="closed issues"
-          />
-
-          <SummaryCard
-            icon={TriangleAlert}
-            label="Critical"
-            value={String(criticalCount)}
-            description="highest priority"
-          />
-        </section>
-
-        {/* Issues workspace */}
-        <section className="overflow-hidden rounded-2xl border border-border bg-card">
-          {/* Toolbar */}
+        <section aria-label="Issues list" className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="flex flex-col gap-3 border-b border-border p-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="relative w-full lg:max-w-[380px]">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
+            <div className="relative w-full lg:max-w-sm">
+              <label htmlFor="issue-search" className="sr-only">Search issues</label>
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <input
-                type="text"
+                id="issue-search"
+                type="search"
                 value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
-                placeholder="Search issues..."
-                className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-foreground/30"
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search title, key, project, or assignee"
+                className="h-10 w-full rounded-lg border border-input bg-background pl-9 pr-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
-            </div>
-
-            <div className="flex items-center gap-2">
-              {/* Status filter */}
-              <div className="relative">
+              {search && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowStatusMenu(
-                      (current) => !current,
-                    )
-                    setShowPriorityMenu(false)
-                  }}
-                  className={[
-                    "inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-xs font-medium transition",
-                    statusFilter !== "All"
-                      ? "border-foreground/30 bg-muted text-foreground"
-                      : "border-border text-muted-foreground hover:bg-muted hover:text-foreground",
-                  ].join(" ")}
+                  onClick={() => setSearch("")}
+                  aria-label="Clear issue search"
+                  className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  Status
-                  <ChevronDown className="size-3.5" />
+                  <X className="size-3.5" aria-hidden="true" />
                 </button>
-
-                {showStatusMenu && (
-                  <FilterMenu
-                    title="Issue status"
-                    options={statusFilters}
-                    value={statusFilter}
-                    onChange={(value) => {
-                      setStatusFilter(value)
-                      setShowStatusMenu(false)
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* Priority filter */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowPriorityMenu(
-                      (current) => !current,
-                    )
-                    setShowStatusMenu(false)
-                  }}
-                  className={[
-                    "inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-xs font-medium transition",
-                    priorityFilter !== "All"
-                      ? "border-foreground/30 bg-muted text-foreground"
-                      : "border-border text-muted-foreground hover:bg-muted hover:text-foreground",
-                  ].join(" ")}
-                >
-                  Priority
-                  <ChevronDown className="size-3.5" />
-                </button>
-
-                {showPriorityMenu && (
-                  <FilterMenu
-                    title="Issue priority"
-                    options={priorityFilters}
-                    value={priorityFilter}
-                    onChange={(value) => {
-                      setPriorityFilter(value)
-                      setShowPriorityMenu(false)
-                    }}
-                  />
-                )}
-              </div>
+              )}
             </div>
-          </div>
 
-          {/* Status tabs */}
-          <div className="overflow-x-auto border-b border-border">
-            <div className="flex min-w-max items-center gap-1 px-4">
-              {statusFilters.map((status) => {
-                const isActive =
-                  statusFilter === status
-
-                return (
+            <div className="flex flex-wrap items-center justify-between gap-3 sm:justify-end">
+              <div className="flex max-w-full items-center gap-1 overflow-x-auto" role="group" aria-label="Filter issues by status">
+                {statusFilters.map((status) => (
                   <button
                     key={status}
                     type="button"
-                    onClick={() =>
-                      setStatusFilter(status)
-                    }
-                    className={[
-                      "relative px-3 py-3 text-xs font-medium transition-colors",
-                      isActive
-                        ? "text-foreground"
-                        : "text-muted-foreground hover:text-foreground",
-                    ].join(" ")}
+                    aria-pressed={statusFilter === status}
+                    onClick={() => setStatusFilter(status)}
+                    className={`shrink-0 rounded-md px-2.5 py-2 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring ${statusFilter === status ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                   >
                     {status}
-
-                    {isActive && (
-                      <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-foreground" />
-                    )}
+                    <span className="ml-1.5 tabular-nums text-muted-foreground">
+                      {status === "All" ? issues.length : issues.filter((issue) => issue.status === status).length}
+                    </span>
                   </button>
-                )
-              })}
+                ))}
+              </div>
+              <label className="sr-only" htmlFor="issue-priority-filter">Filter issues by priority</label>
+              <select
+                id="issue-priority-filter"
+                value={priorityFilter}
+                onChange={(event) => setPriorityFilter(event.target.value as (typeof priorityFilters)[number])}
+                className="h-9 rounded-lg border border-input bg-background px-2.5 text-xs text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                {priorityFilters.map((priority) => <option key={priority} value={priority}>{priority === "All" ? "All priorities" : priority}</option>)}
+              </select>
             </div>
           </div>
 
-          {/* Desktop table header */}
-          <div className="hidden border-b border-border px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground xl:grid xl:grid-cols-[90px_minmax(280px,1fr)_130px_100px_145px_100px_28px] xl:items-center xl:gap-4">
-            <span>ID</span>
-            <span>Issue</span>
-            <span>Project</span>
-            <span>Priority</span>
-            <span>Assignee</span>
-            <span>Due</span>
-            <span />
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 sm:px-5">
+            <p className="text-xs text-muted-foreground" aria-live="polite">
+              {visibleIssues.length} {visibleIssues.length === 1 ? "issue" : "issues"} in this session
+            </p>
+            <p className="hidden text-[10px] text-muted-foreground sm:block">Select an issue to view details</p>
           </div>
 
-          {/* Issue list */}
           {visibleIssues.length > 0 ? (
-            <div className="divide-y divide-border">
+            <m.div role="list" aria-label="Issues" initial="hidden" animate="visible" variants={staggerContainer} className="divide-y divide-border">
               {visibleIssues.map((issue) => (
-                <IssueRow
-                  key={issue.id}
-                  issue={issue}
-                />
+                <m.div key={issue.id} role="listitem" variants={staggerItem}>
+                  <IssueRow issue={issue} onOpen={() => setSelectedIssue(issue)} />
+                </m.div>
               ))}
-            </div>
+            </m.div>
+          ) : issues.length === 0 ? (
+            <EmptyState
+              title="No issues yet"
+              description="Create an issue to record a bug, blocker, or piece of work."
+              action={<button type="button" onClick={() => setCreateOpen(true)} className="mt-4 inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-xs font-medium text-primary-foreground outline-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"><Plus className="size-3.5" aria-hidden="true" />Create an issue</button>}
+            />
           ) : (
-            <EmptyState search={search} />
+            <EmptyState
+              title="No matching issues"
+              description="Try another search or adjust the status and priority filters."
+              action={<button type="button" onClick={() => { setSearch(""); setStatusFilter("All"); setPriorityFilter("All") }} className="mt-4 rounded-md px-3 py-2 text-xs font-medium text-primary outline-none hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Clear filters</button>}
+            />
           )}
         </section>
       </div>
 
-      {/* Create Issue Modal */}
-      <CreateIssueModal
-        open={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreate={handleCreateIssue}
-      />
+      {createOpen && (
+        <CreateIssueModal
+          onClose={() => setCreateOpen(false)}
+          onSave={(values) => saveIssue(values)}
+        />
+      )}
+      {editingIssue && (
+        <CreateIssueModal
+          key={editingIssue.id}
+          issue={editingIssue}
+          onClose={() => setEditingIssue(null)}
+          onSave={(values) => saveIssue(values, editingIssue)}
+        />
+      )}
+      {selectedIssue && (
+        <IssueDetailsDialog
+          issue={selectedIssue}
+          onClose={() => setSelectedIssue(null)}
+          onEdit={() => {
+            const latestIssue = issues.find((issue) => issue.id === selectedIssue.id) ?? selectedIssue
+            setEditingIssue(latestIssue)
+            setSelectedIssue(null)
+          }}
+        />
+      )}
     </DashboardLayout>
   )
 }
 
-function SummaryCard({
-  icon: Icon,
-  label,
-  value,
-  description,
-}: {
-  icon: typeof AlertCircle
-  label: string
-  value: string
-  description: string
-}) {
+function IssueRow({ issue, onOpen }: { issue: Issue; onOpen: () => void }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="flex items-start justify-between">
-        <p className="text-xs font-medium text-muted-foreground">
-          {label}
-        </p>
-
-        <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
-          <Icon className="size-4 text-muted-foreground" />
-        </div>
-      </div>
-
-      <p className="mt-4 text-2xl font-semibold tracking-[-0.04em]">
-        {value}
-      </p>
-
-      <p className="mt-1 text-[11px] text-muted-foreground">
-        {description}
-      </p>
-    </div>
-  )
-}
-
-function FilterMenu<T extends string>({
-  title,
-  options,
-  value,
-  onChange,
-}: {
-  title: string
-  options: readonly T[]
-  value: T
-  onChange: (value: T) => void
-}) {
-  return (
-    <div className="absolute right-0 top-12 z-30 w-48 rounded-xl border border-border bg-card p-1.5 shadow-xl">
-      <p className="px-2.5 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {title}
-      </p>
-
-      {options.map((option) => (
-        <button
-          key={option}
-          type="button"
-          onClick={() => onChange(option)}
-          className={[
-            "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs transition",
-            value === option
-              ? "bg-muted font-medium text-foreground"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground",
-          ].join(" ")}
-        >
-          {option}
-
-          {value === option && (
-            <Check className="size-3.5" />
-          )}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function IssueRow({
-  issue,
-}: {
-  issue: Issue
-}) {
-  return (
-    <div className="group relative px-4 py-4 transition-colors hover:bg-muted/20 sm:px-5 xl:grid xl:grid-cols-[90px_minmax(280px,1fr)_130px_100px_145px_100px_28px] xl:items-center xl:gap-4">
-      {/* Issue ID */}
-      <span className="text-[11px] font-medium text-muted-foreground">
-        {issue.key}
-      </span>
-
-      {/* Issue */}
-      <div className="mt-2 min-w-0 xl:mt-0">
-        <div className="flex min-w-0 items-center gap-2">
-          <IssueStatusIcon status={issue.status} />
-
-          <p className="truncate text-sm font-medium">
-            {issue.title}
-          </p>
-        </div>
-
-        <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground xl:hidden">
-          <span>{issue.project}</span>
-
-          <span className="size-0.5 rounded-full bg-muted-foreground/50" />
-
-          <span>{issue.dueDate}</span>
-        </div>
-      </div>
-
-      {/* Project */}
-      <span className="hidden truncate text-xs text-muted-foreground xl:block">
-        {issue.project}
-      </span>
-
-      {/* Priority */}
-      <PriorityBadge priority={issue.priority} />
-
-      {/* Assignee */}
-      <div className="mt-3 flex items-center gap-2 xl:mt-0">
-        <div className="flex size-7 items-center justify-center rounded-lg bg-muted text-[9px] font-semibold">
-          {issue.initials}
-        </div>
-
-        <span className="truncate text-xs text-muted-foreground">
-          {issue.assignee}
-        </span>
-      </div>
-
-      {/* Due */}
-      <span className="hidden text-xs text-muted-foreground xl:block">
-        {issue.dueDate}
-      </span>
-
-      {/* Actions */}
+    <div>
       <button
         type="button"
-        aria-label={`More options for ${issue.key}`}
-        className="absolute right-4 top-4 hidden size-7 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground group-hover:flex xl:static xl:flex"
+        onClick={onOpen}
+        aria-label={`Open ${issue.key}: ${issue.title}`}
+        className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3 px-4 py-3.5 text-left outline-none transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-5 xl:grid-cols-[minmax(0,1fr)_120px_110px_130px]"
       >
-        <MoreHorizontal className="size-4" />
+        <span className="flex min-w-0 items-start gap-3">
+          <IssueStatusIcon status={issue.status} />
+          <span className="min-w-0">
+            <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="truncate text-sm font-medium">{issue.title}</span>
+              <span className="font-mono text-[10px] text-muted-foreground">{issue.key}</span>
+            </span>
+            <span className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 text-[11px] text-muted-foreground">
+              <span>{issue.status}</span>
+              {(issue.project || issue.assignee || issue.dueDate) && <span aria-hidden="true">|</span>}
+              {issue.project && <span className="truncate">{issue.project}</span>}
+              {issue.project && issue.assignee && <span aria-hidden="true">|</span>}
+              {issue.assignee && <span className="truncate">{issue.assignee}</span>}
+              {issue.dueDate && <><span aria-hidden="true">|</span><span>Due {formatDate(issue.dueDate)}</span></>}
+            </span>
+          </span>
+        </span>
+        <span className="justify-self-end xl:justify-self-start"><PriorityBadge priority={issue.priority} /></span>
+        <span className="hidden text-xs text-muted-foreground xl:block">{issue.status}</span>
+        <span className="hidden text-xs text-muted-foreground xl:block">{issue.dueDate ? formatDate(issue.dueDate) : "No due date"}</span>
       </button>
-
-      {/* Mobile status */}
-      <div className="mt-3 flex items-center justify-between xl:hidden">
-        <StatusBadge status={issue.status} />
-
-        <button
-          type="button"
-          className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground"
-        >
-          View
-          <ArrowUpRight className="size-3" />
-        </button>
-      </div>
     </div>
   )
 }
 
-function IssueStatusIcon({
-  status,
-}: {
-  status: IssueStatus
-}) {
-  if (status === "Resolved") {
-    return (
-      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
-        <Check className="size-3" />
-      </span>
-    )
-  }
-
-  if (status === "In progress") {
-    return (
-      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-400">
-        <Clock3 className="size-3" />
-      </span>
-    )
-  }
-
+function IssueStatusIcon({ status }: { status: IssueStatus }) {
+  const Icon = status === "Resolved" ? Check : status === "In progress" ? Clock3 : CircleDot
   return (
-    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-400">
-      <CircleDot className="size-3" />
+    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-border bg-muted/50 text-muted-foreground" aria-hidden="true">
+      <Icon className="size-3" />
     </span>
   )
 }
 
-function StatusBadge({
-  status,
-}: {
-  status: IssueStatus
-}) {
-  const styles = {
-    Open: "bg-red-500/10 text-red-400",
-    "In progress": "bg-amber-500/10 text-amber-400",
-    Resolved: "bg-emerald-500/10 text-emerald-400",
-  }
-
+function PriorityBadge({ priority }: { priority: IssuePriority }) {
+  const icon = priority === "Critical" ? <TriangleAlert className="size-3" aria-hidden="true" /> : null
   return (
-    <span
-      className={[
-        "inline-flex rounded-full px-2.5 py-1 text-[10px] font-medium",
-        styles[status],
-      ].join(" ")}
-    >
-      {status}
-    </span>
-  )
-}
-
-function PriorityBadge({
-  priority,
-}: {
-  priority: IssuePriority
-}) {
-  const styles = {
-    Critical: "bg-red-500/10 text-red-400",
-    High: "bg-orange-500/10 text-orange-400",
-    Medium: "bg-amber-500/10 text-amber-400",
-    Low: "bg-emerald-500/10 text-emerald-400",
-  }
-
-  return (
-    <span
-      className={[
-        "mt-3 inline-flex w-fit rounded-full px-2.5 py-1 text-[10px] font-semibold xl:mt-0",
-        styles[priority],
-      ].join(" ")}
-    >
-      {priority}
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-2.5 py-1 text-[10px] font-medium text-foreground">
+      {icon}{priority}
     </span>
   )
 }
 
 function EmptyState({
-  search,
+  title,
+  description,
+  action,
 }: {
-  search: string
+  title: string
+  description: string
+  action: ReactNode
 }) {
   return (
-    <div className="px-6 py-14 text-center">
-      <p className="text-sm font-medium">
-        No issues found
-      </p>
-
-      <p className="mt-1 text-xs text-muted-foreground">
-        {search
-          ? `No issues match "${search}".`
-          : "There are no issues in this view."}
-      </p>
+    <div className="flex min-h-64 flex-col items-center justify-center px-6 py-12 text-center">
+      <span className="mb-3 flex size-10 items-center justify-center rounded-xl border border-border bg-muted/50 text-muted-foreground"><AlertCircle className="size-5" aria-hidden="true" /></span>
+      <p className="text-sm font-medium">{title}</p>
+      <p className="mt-1 max-w-sm text-xs leading-5 text-muted-foreground">{description}</p>
+      {action}
     </div>
   )
 }
