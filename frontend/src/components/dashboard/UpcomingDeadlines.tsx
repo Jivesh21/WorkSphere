@@ -1,159 +1,77 @@
-import {
-  ArrowUpRight,
-  CircleAlert,
-  Clock3,
-} from "lucide-react"
-interface Deadline {
-  id: number
-  title: string
-  project: string
-  date: string
-  time: string
-  priority: "High" | "Medium" | "Low"
-}
+import { AlertCircle, CalendarClock } from "lucide-react"
+import { Link } from "react-router-dom"
 
-const deadlines: Deadline[] = [
-  {
-    id: 1,
-    title: "API documentation review",
-    project: "Nimbus API",
-    date: "Aug 27",
-    time: "10:00 AM",
-    priority: "High",
-  },
-  {
-    id: 2,
-    title: "Sprint release testing",
-    project: "Atlas Mobile",
-    date: "Aug 29",
-    time: "2:30 PM",
-    priority: "High",
-  },
-  {
-    id: 3,
-    title: "Dashboard wireframes",
-    project: "Mercury Web",
-    date: "Sep 01",
-    time: "5:00 PM",
-    priority: "Medium",
-  },
-  {
-    id: 4,
-    title: "Team retrospective",
-    project: "WorkSphere",
-    date: "Sep 03",
-    time: "11:00 AM",
-    priority: "Low",
-  },
-]
+import useIssues from "@/hooks/useIssues"
+import type { Issue } from "@/pages/issues/types"
+
+function toLocalDate(dateValue: string) {
+  const [year, month, day] = dateValue.split("-").map(Number)
+  if (!year || !month || !day) return null
+  const date = new Date(year, month - 1, day)
+  return Number.isNaN(date.getTime()) ? null : date
+}
 
 function UpcomingDeadlines() {
-  return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-border px-5 py-4">
-        <div>
-          <h2 className="text-sm font-semibold tracking-tight">
-            Upcoming Deadlines
-          </h2>
+  const { issues } = useIssues()
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const endOfWindow = new Date(today)
+  endOfWindow.setDate(endOfWindow.getDate() + 7)
 
-          <p className="mt-1 text-xs text-muted-foreground">
-            Important work coming up
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          View all
-          <ArrowUpRight className="size-3.5" />
-        </button>
-      </div>
-
-      {/* Deadline list */}
-      <div className="divide-y divide-border">
-        {deadlines.map((deadline) => (
-          <DeadlineItem
-            key={deadline.id}
-            deadline={deadline}
-          />
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function DeadlineItem({
-  deadline,
-}: {
-  deadline: Deadline
-}) {
-  return (
-    <div className="group flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-muted/20">
-      {/* Date */}
-      <div className="flex size-10 shrink-0 flex-col items-center justify-center rounded-lg bg-muted/50">
-        <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
-          {deadline.date.split(" ")[0]}
-        </span>
-
-        <span className="text-[11px] font-semibold leading-none">
-          {deadline.date.split(" ")[1]}
-        </span>
-      </div>
-
-      {/* Content */}
-      <div className="min-w-0 flex-1">
-        <div className="flex min-w-0 items-center justify-between gap-2">
-          <p className="truncate text-[13px] font-semibold tracking-tight">
-            {deadline.title}
-          </p>
-
-          <PriorityBadge priority={deadline.priority} />
-        </div>
-
-        <div className="mt-1.5 flex items-center gap-2 text-[11px] text-muted-foreground">
-          <span className="truncate">
-            {deadline.project}
-          </span>
-
-          <span className="size-0.5 shrink-0 rounded-full bg-muted-foreground/50" />
-
-          <span className="flex shrink-0 items-center gap-1">
-            <Clock3 className="size-3" />
-            {deadline.time}
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function PriorityBadge({
-  priority,
-}: {
-  priority: Deadline["priority"]
-}) {
-  const styles = {
-    High: "bg-red-500/10 text-red-400",
-    Medium: "bg-amber-500/10 text-amber-400",
-    Low: "bg-emerald-500/10 text-emerald-400",
-  }
+  const attentionIssues = issues
+    .filter((issue) => issue.status !== "Resolved" && Boolean(issue.dueDate))
+    .map((issue) => ({ issue, due: toLocalDate(issue.dueDate) }))
+    .filter((item): item is { issue: Issue; due: Date } =>
+      item.due !== null && item.due <= endOfWindow,
+    )
+    .sort((a, b) => a.due.getTime() - b.due.getTime())
 
   return (
-    <span
-      className={[
-        "inline-flex shrink-0 items-center gap-1 rounded-full",
-        "px-2 py-1 text-[9px] font-semibold",
-        styles[priority],
-      ].join(" ")}
-    >
-      {priority === "High" && (
-        <CircleAlert className="size-2.5" />
+    <section aria-label="Issues due soon" className="overflow-hidden rounded-md border border-border bg-card">
+      {attentionIssues.length === 0 ? (
+        <div className="flex min-h-12 items-center gap-2 px-2.5 py-2">
+          <CalendarClock className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] leading-tight font-medium">Nothing due this week</p>
+            <p className="mt-1 text-[10px] leading-tight text-muted-foreground">
+              No due-dated open issues are available in this session.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <ul className="divide-y divide-border/80">
+          {attentionIssues.slice(0, 5).map(({ issue, due }) => {
+            const overdue = due < today
+            return (
+              <li key={issue.id}>
+                <Link
+                  to="/issues"
+                  className="group flex min-w-0 items-center gap-2 px-2.5 py-2 outline-none transition-colors hover:bg-muted/40 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring motion-reduce:transition-none"
+                >
+                  <span className={`flex size-5 shrink-0 items-center justify-center rounded ${overdue ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
+                    {overdue ? <AlertCircle className="size-3" aria-hidden="true" /> : <CalendarClock className="size-3" aria-hidden="true" />}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[11px] leading-tight font-medium text-foreground group-hover:text-primary">{issue.title}</span>
+                    <span className="mt-1 block truncate text-[10px] leading-tight text-muted-foreground">{issue.key} · {issue.project}</span>
+                  </span>
+                  <span className={`shrink-0 text-[10px] leading-none font-medium tabular-nums ${overdue ? "text-destructive" : "text-muted-foreground"}`}>
+                    {new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short" }).format(due)}
+                  </span>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
       )}
-
-      {priority}
-    </span>
+      {attentionIssues.length > 5 && (
+        <div className="border-t border-border px-2 py-1 text-right">
+          <Link to="/issues" className="text-[10px] font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+            View all {attentionIssues.length} due issues
+          </Link>
+        </div>
+      )}
+    </section>
   )
 }
 

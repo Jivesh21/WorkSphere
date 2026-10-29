@@ -1,158 +1,47 @@
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts"
-
-const activityData = [
-  { day: "Mon", completed: 12, issues: 4 },
-  { day: "Tue", completed: 18, issues: 3 },
-  { day: "Wed", completed: 14, issues: 6 },
-  { day: "Thu", completed: 24, issues: 4 },
-  { day: "Fri", completed: 21, issues: 2 },
-  { day: "Sat", completed: 28, issues: 3 },
-  { day: "Sun", completed: 32, issues: 1 },
-]
+import { Activity } from "lucide-react"
+import { Link } from "react-router-dom"
+import useAuth from "@/hooks/useAuth"
 
 function ProjectActivityChart() {
+  const { isDevelopmentPreview } = useAuth()
+  const previewActivity = [
+    { person: "Raman", initials: "R", action: "updated", subject: "Implement authentication API", time: "2 min ago", color: "bg-violet-500" },
+    { person: "Monika", initials: "M", action: "completed", subject: "Design token cleanup", time: "1 hour ago", color: "bg-emerald-500" },
+    { person: "Jivesh Sharma", initials: "JS", action: "created a task", subject: "Fix real-time notification bug", time: "3 hours ago", color: "bg-blue-500" },
+    { person: "Raman", initials: "R", action: "commented on", subject: "Database schema", time: "5 hours ago", color: "bg-amber-500" },
+    { person: "Monika", initials: "M", action: "moved task to", subject: "In Review", time: "1 day ago", color: "bg-rose-500" },
+  ]
+
   return (
-    <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#111113]">
-      {/* Header */}
-      <div className="flex flex-col gap-2.5 px-5 pb-1 pt-5 sm:flex-row sm:items-start sm:justify-between">
+    <section aria-labelledby="project-activity-title" className="min-w-0 overflow-hidden rounded-md border border-border bg-card text-card-foreground">
+      <header className="flex items-center justify-between gap-3 border-b border-border px-3.5 py-2.5">
         <div>
-          <h2 className="text-sm font-semibold tracking-tight text-[#F4F4F6]">
-            Project Activity
-          </h2>
-
-          <p className="mt-1 text-xs text-[#9A9AA2]">
-            Tasks completed across your workspace
-          </p>
+          <h3 id="project-activity-title" className="text-sm leading-tight font-semibold tracking-tight">Recent activity</h3>
+          <p className="mt-1 text-[11px] leading-tight text-muted-foreground">{isDevelopmentPreview ? "Sample preview activity" : "Workspace updates"}</p>
         </div>
-
-        <div className="flex items-center gap-4 text-[10px] text-[#9A9AA2]">
-          <div className="flex items-center gap-1.5">
-            <span className="size-1.5 rounded-full bg-cyan-400" />
-            Completed
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <span className="size-1.5 rounded-full bg-red-400" />
-            Issues
-          </div>
+        {isDevelopmentPreview && <Link to="/issues" className="text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">View all</Link>}
+      </header>
+      {isDevelopmentPreview ? (
+        <ol className="divide-y divide-border/70 px-3">
+          {previewActivity.map((item, index) => (
+            <li key={`${item.person}-${item.subject}`} className="flex min-w-0 items-center gap-2.5 py-2">
+              <span className={`relative flex size-7 shrink-0 items-center justify-center rounded-full ${item.color} text-[10px] font-semibold text-white`}>
+                {index === 0 && <Activity className="absolute -left-1.5 -top-0.5 size-2.5 rounded-full bg-card p-0.5 text-primary" aria-hidden="true" />}
+                {item.initials}
+              </span>
+              <p className="min-w-0 flex-1 truncate text-xs leading-tight text-muted-foreground">
+                <span className="font-medium text-foreground">{item.person}</span> {item.action} <span className="font-medium text-foreground">{item.subject}</span>
+              </p>
+              <span className="shrink-0 text-[10px] text-muted-foreground">{item.time}</span>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <div className="flex min-h-16 items-center gap-2.5 px-3.5 py-3">
+          <Activity className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <p className="text-xs leading-relaxed text-muted-foreground">Activity records aren’t available to this workspace yet.</p>
         </div>
-      </div>
-
-      {/* Chart */}
-      <div className="h-[250px] w-full px-3 pb-5 pt-2">
-        <ResponsiveContainer
-          width="100%"
-          height="100%"
-        >
-          <LineChart
-            data={activityData}
-            margin={{
-              top: 8,
-              right: 16,
-              left: 0,
-              bottom: 0,
-            }}
-          >
-            <CartesianGrid
-              vertical={false}
-              horizontalCoordinatesGenerator={({ height }) => {
-                const lines: number[] = []
-                for (let i = 1; i <= 4; i++) {
-                  lines.push((height / 4) * i)
-                }
-                return lines
-              }}
-              stroke="rgba(255,255,255,0.05)"
-              strokeWidth={0.5}
-            />
-
-            <XAxis
-              dataKey="day"
-              axisLine={false}
-              tickLine={false}
-              tick={{
-                fill: "rgba(255,255,255,0.35)",
-                fontSize: 10.5,
-                fontWeight: 500,
-              }}
-              dy={10}
-            />
-
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{
-                fill: "rgba(255,255,255,0.25)",
-                fontSize: 10,
-              }}
-              width={36}
-              tickCount={4}
-            />
-
-            <Tooltip
-              cursor={{
-                stroke: "rgba(255,255,255,0.08)",
-                strokeWidth: 1,
-              }}
-              contentStyle={{
-                background: "#111113",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "8px",
-                color: "#F4F4F6",
-                fontSize: "11.5px",
-                padding: "9px 12px",
-                boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
-              }}
-              labelStyle={{
-                color: "#9A9AA2",
-                marginBottom: "5px",
-                fontSize: "10.5px",
-                fontWeight: 500,
-              }}
-              
-            />
-
-            <Line
-              type="monotone"
-              dataKey="completed"
-              stroke="#22d3ee"
-              strokeWidth={2.2}
-              dot={false}
-              activeDot={{
-                r: 4.5,
-                strokeWidth: 0,
-                fill: "#22d3ee",
-              }}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-
-            <Line
-              type="monotone"
-              dataKey="issues"
-              stroke="#f87171"
-              strokeWidth={1.6}
-              strokeDasharray="5 4"
-              dot={false}
-              activeDot={{
-                r: 3.5,
-                strokeWidth: 0,
-                fill: "#f87171",
-              }}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      )}
     </section>
   )
 }

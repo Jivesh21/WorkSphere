@@ -1,60 +1,23 @@
-import { ArrowUpRight, Target } from "lucide-react"
+import { Target } from "lucide-react"
+import { Link } from "react-router-dom"
 
 function SprintProgress() {
-  const completed = 34
-  const total = 50
-  const progress = Math.round((completed / total) * 100)
-
   return (
-    <section className="h-full min-h-[280px] overflow-hidden rounded-2xl border border-white/10 bg-[#111113] p-5">
-      <div className="flex items-start justify-between gap-4">
+    <section aria-labelledby="sprint-progress-title" className="overflow-hidden rounded-lg border border-border/80 bg-card text-card-foreground shadow-sm shadow-black/[0.025]">
+      <header className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3">
         <div>
-          <h2 className="text-sm font-semibold tracking-tight text-[#F4F4F6]">
-            Sprint progress
-          </h2>
-
-          <p className="mt-1 text-xs text-[#9A9AA2]">
-            Sprint 24 · 8 days left
-          </p>
+          <h3 id="sprint-progress-title" className="text-sm font-semibold tracking-tight">Sprint status</h3>
+          <p className="mt-0.5 text-[10px] text-muted-foreground">Delivery cycle</p>
         </div>
-
-        <button
-          type="button"
-          className="inline-flex items-center gap-1 text-xs font-medium text-[#9A9AA2] transition-colors hover:text-[#F4F4F6]"
-        >
-          View sprint
-          <ArrowUpRight className="size-3.5" />
-        </button>
-      </div>
-
-      <div className="mt-8 flex items-end justify-between gap-4">
-        <div>
-          <p className="text-[42px] font-semibold leading-none tracking-[-0.05em] text-[#F4F4F6]">
-            {progress}%
-          </p>
-
-          <p className="mt-2 text-xs text-[#9A9AA2]">
-            completion
-          </p>
-        </div>
-
-        <div className="flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.045]">
-          <Target className="size-5 text-[#9A9AA2]" />
-        </div>
-      </div>
-
-      <div className="mt-8">
-        <div className="h-2 overflow-hidden rounded-full bg-white/[0.07]">
-          <div
-            className="h-full rounded-full bg-[#22d3ee] transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        <div className="mt-3 flex items-center justify-between text-xs text-[#9A9AA2]">
-          <span>{completed} completed</span>
-          <span>{total} total tasks</span>
-        </div>
+        <span className="flex size-8 items-center justify-center rounded-md border border-border/70 bg-muted/50 text-muted-foreground"><Target className="size-3.5" aria-hidden="true" /></span>
+      </header>
+      <div className="flex min-h-24 items-center gap-3 px-4 py-3">
+        <p className="text-[10px] leading-relaxed text-muted-foreground">
+          Sprint data is not connected to the dashboard yet.
+        </p>
+        <Link to="/board" className="shrink-0 rounded-sm text-[10px] font-medium text-primary outline-none transition-colors hover:text-primary/80 hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+          Open board
+        </Link>
       </div>
     </section>
   )

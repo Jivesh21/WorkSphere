@@ -1,4 +1,4 @@
-import { ChevronDown, Search } from "lucide-react"
+import { Search } from "lucide-react"
 import type { RoleFilter } from "../types"
 
 interface TeamToolbarProps {
@@ -6,8 +6,6 @@ interface TeamToolbarProps {
   onSearchChange: (value: string) => void
   roleFilter: RoleFilter
   roleFilters: RoleFilter[]
-  showRoleMenu: boolean
-  onToggleRoleMenu: () => void
   onRoleChange: (role: RoleFilter) => void
 }
 
@@ -16,8 +14,6 @@ function TeamToolbar({
   onSearchChange,
   roleFilter,
   roleFilters,
-  showRoleMenu,
-  onToggleRoleMenu,
   onRoleChange,
 }: TeamToolbarProps) {
   return (
@@ -36,30 +32,11 @@ function TeamToolbar({
         />
       </div>
 
-      <div className="relative">
-        <button
-          type="button"
-          onClick={onToggleRoleMenu}
-          className="flex h-10 items-center gap-2 rounded-xl border border-border bg-background px-3 text-sm font-medium transition-colors hover:bg-muted"
-        >
-          <span>Role: {roleFilter}</span>
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-        </button>
-
-        {showRoleMenu && (
-          <div className="absolute right-0 z-20 mt-2 min-w-36 rounded-xl border border-border bg-card p-1 shadow-lg">
-            {roleFilters.map((role) => (
-              <button
-                key={role}
-                type="button"
-                onClick={() => onRoleChange(role)}
-                className="flex w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
-              >
-                {role}
-              </button>
-            ))}
-          </div>
-        )}
+      <div>
+        <label htmlFor="team-role-filter" className="sr-only">Filter team members by role</label>
+        <select id="team-role-filter" value={roleFilter} onChange={(event) => onRoleChange(event.target.value as RoleFilter)} className="h-9 rounded-md border border-input bg-background px-2.5 text-xs outline-none transition-[border-color,box-shadow] hover:border-ring/60 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30">
+          {roleFilters.map((role) => <option key={role} value={role}>{role === "All" ? "All roles" : role}</option>)}
+        </select>
       </div>
     </div>
   )
