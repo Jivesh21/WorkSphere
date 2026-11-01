@@ -9,7 +9,7 @@ function WorkspacePage() {
             Workspace
           </p>
 
-          <h1 className="mt-2 text-[32px] font-semibold tracking-[-0.045em] sm:text-[38px]">
+          <h1 className="mt-2 font-semibold tracking-[-0.045em]">
             Workspace
           </h1>
 

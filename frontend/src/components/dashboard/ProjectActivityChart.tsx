@@ -17,7 +17,7 @@ function ProjectActivityChart() {
       <header className="flex items-center justify-between gap-3 border-b border-border px-3.5 py-2.5">
         <div>
           <h3 id="project-activity-title" className="text-sm leading-tight font-semibold tracking-tight">Recent activity</h3>
-          <p className="mt-1 text-[11px] leading-tight text-muted-foreground">{isDevelopmentPreview ? "Sample preview activity" : "Workspace updates"}</p>
+          <p className="mt-1 text-xs leading-tight text-muted-foreground">{isDevelopmentPreview ? "Sample preview activity" : "Workspace updates"}</p>
         </div>
         {isDevelopmentPreview && <Link to="/issues" className="text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">View all</Link>}
       </header>
@@ -25,14 +25,14 @@ function ProjectActivityChart() {
         <ol className="divide-y divide-border/70 px-3">
           {previewActivity.map((item, index) => (
             <li key={`${item.person}-${item.subject}`} className="flex min-w-0 items-center gap-2.5 py-2">
-              <span className={`relative flex size-7 shrink-0 items-center justify-center rounded-full ${item.color} text-[10px] font-semibold text-white`}>
+              <span className={`relative flex size-7 shrink-0 items-center justify-center rounded-full ${item.color} text-xs font-semibold text-white`}>
                 {index === 0 && <Activity className="absolute -left-1.5 -top-0.5 size-2.5 rounded-full bg-card p-0.5 text-primary" aria-hidden="true" />}
                 {item.initials}
               </span>
               <p className="min-w-0 flex-1 truncate text-xs leading-tight text-muted-foreground">
                 <span className="font-medium text-foreground">{item.person}</span> {item.action} <span className="font-medium text-foreground">{item.subject}</span>
               </p>
-              <span className="shrink-0 text-[10px] text-muted-foreground">{item.time}</span>
+              <span className="shrink-0 text-xs text-muted-foreground">{item.time}</span>
             </li>
           ))}
         </ol>

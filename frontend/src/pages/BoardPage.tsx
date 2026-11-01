@@ -120,7 +120,7 @@ function BoardPage() {
                   <section key={status} aria-labelledby={`board-column-${slug(status)}`} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; setDropTarget(status) }} onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropTarget((current) => current === status ? null : current) }} onDrop={(event) => handleDrop(event, status)} className={`flex min-h-[320px] min-w-0 flex-col rounded-lg border bg-muted/20 transition-colors motion-reduce:transition-none ${isDropTarget ? "border-primary/60 bg-primary/5" : "border-border"}`}>
                     <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-border px-3">
                       <h2 id={`board-column-${slug(status)}`} className="flex items-center gap-2 text-xs font-semibold"><span className={`flex size-6 items-center justify-center rounded-md ${status === "Resolved" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : status === "In progress" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}><StatusIcon className="size-3.5" aria-hidden="true" /></span>{status}</h2>
-                      <span className="min-w-6 rounded-md border border-border bg-background px-1.5 py-0.5 text-center text-[10px] font-semibold tabular-nums text-muted-foreground" aria-label={`${statusIssues.length} issues`}>{statusIssues.length}</span>
+                      <span className="min-w-6 rounded-md border border-border bg-background px-1.5 py-0.5 text-center text-xs font-semibold tabular-nums text-muted-foreground" aria-label={`${statusIssues.length} issues`}>{statusIssues.length}</span>
                     </header>
                     {statusIssues.length ? (
                       <m.ul initial="hidden" animate="visible" variants={staggerContainer} className="flex flex-1 flex-col gap-2 p-2">
@@ -162,20 +162,20 @@ function IssueCard({
   return (
     <article className={`min-w-0 rounded-md border border-border bg-card text-card-foreground transition-[border-color,box-shadow,opacity] hover:border-primary/30 motion-reduce:transition-none ${dragging ? "opacity-50" : ""}`}>
       <div className="flex items-center gap-2 border-b border-border/70 px-2.5 py-2">
-        <span className="min-w-0 flex-1 truncate font-mono text-[10px] font-medium text-muted-foreground">{issue.key}</span>
+        <span className="min-w-0 flex-1 truncate font-mono text-xs font-medium text-muted-foreground">{issue.key}</span>
         <PriorityLabel priority={issue.priority} />
         <button type="button" draggable onDragStart={(event) => onDragStart(event, issue)} onDragEnd={onDragEnd} aria-label={`Drag ${issue.key} to another status column`} title="Drag to move; use the status menu for keyboard or touch" className="flex size-6 shrink-0 cursor-grab items-center justify-center rounded text-muted-foreground outline-none hover:bg-muted hover:text-foreground active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-ring"><GripVertical className="size-3.5" aria-hidden="true" /></button>
       </div>
       <div className="p-2.5">
         <button type="button" onClick={onOpen} aria-label={`Open ${issue.key}: ${issue.title}`} className="block w-full rounded text-left text-xs font-medium leading-5 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-ring">{issue.title}</button>
-        {issue.description && <p className="mt-1.5 line-clamp-2 whitespace-pre-wrap text-[11px] leading-4 text-muted-foreground">{issue.description}</p>}
-        {(issue.project || issue.assignee || issue.dueDate) && <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-muted-foreground">
+        {issue.description && <p className="mt-1.5 line-clamp-2 whitespace-pre-wrap text-xs leading-4 text-muted-foreground">{issue.description}</p>}
+        {(issue.project || issue.assignee || issue.dueDate) && <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
           {issue.project && <span className="max-w-full truncate">{issue.project}</span>}
           {issue.assignee && <span className="max-w-full truncate">{issue.assignee}</span>}
           {issue.dueDate && <span>{formatDate(issue.dueDate)}</span>}
         </div>}
         <label className="sr-only" htmlFor={`move-issue-${issue.id}`}>Change status for {issue.key}</label>
-        <select id={`move-issue-${issue.id}`} value={issue.status} onChange={(event) => onStatusChange(event.target.value as IssueStatus)} className="mt-2.5 h-8 w-full rounded border border-input bg-background px-2 text-[11px] text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40">
+        <select id={`move-issue-${issue.id}`} value={issue.status} onChange={(event) => onStatusChange(event.target.value as IssueStatus)} className="mt-2.5 h-8 w-full rounded border border-input bg-background px-2 text-xs text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40">
           {issueStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
         </select>
       </div>
@@ -185,7 +185,7 @@ function IssueCard({
 
 function PriorityLabel({ priority }: { priority: IssuePriority }) {
   const classes = priority === "Critical" ? "border-destructive/30 bg-destructive/10 text-destructive" : priority === "High" ? "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300" : priority === "Medium" ? "border-sky-500/25 bg-sky-500/10 text-sky-700 dark:text-sky-300" : "border-border bg-muted/60 text-muted-foreground"
-  return <span className={`inline-flex shrink-0 items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold ${classes}`}>
+  return <span className={`inline-flex shrink-0 items-center gap-1 rounded border px-1.5 py-0.5 text-xs font-semibold ${classes}`}>
     {priority === "Critical" && <TriangleAlert className="size-3" aria-hidden="true" />}{priority}
   </span>
 }

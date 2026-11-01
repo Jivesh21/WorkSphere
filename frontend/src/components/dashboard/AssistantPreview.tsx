@@ -13,21 +13,21 @@ function AssistantPreview() {
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-1.5">
             <h2 id="assistant-preview-title" className="truncate text-xs font-semibold tracking-tight">AI Assistant</h2>
-            <span className="shrink-0 rounded-full border border-primary/20 bg-primary/5 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-primary">{isDevelopmentPreview ? "Demo" : "Preview"}</span>
+            <span className="shrink-0 rounded-full border border-primary/20 bg-primary/5 px-1.5 py-0.5 text-xs font-medium uppercase tracking-wide text-primary">{isDevelopmentPreview ? "Demo" : "Preview"}</span>
           </div>
-          <p className="mt-0.5 truncate text-[10px] text-muted-foreground">Useful shortcuts for your workspace</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">Useful shortcuts for your workspace</p>
         </div>
         <ArrowRight className="size-3 shrink-0 text-primary" aria-hidden="true" />
       </div>
       <div className="mt-2 grid grid-cols-1 gap-1">
-        <Link to="/work" className="flex h-8 items-center gap-1.5 rounded border border-border/80 bg-background/50 px-2.5 text-[10px] font-medium text-foreground outline-none transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:ring-2 focus-visible:ring-ring">
+        <Link to="/work" className="flex h-8 items-center gap-1.5 rounded border border-border/80 bg-background/50 px-2.5 text-xs font-medium text-foreground outline-none transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:ring-2 focus-visible:ring-ring">
           <ListChecks className="size-3 text-primary" aria-hidden="true" /> Review active tasks
         </Link>
-        <Link to="/projects" className="flex h-8 items-center gap-1.5 rounded border border-border/80 bg-background/50 px-2.5 text-[10px] font-medium text-foreground outline-none transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:ring-2 focus-visible:ring-ring">
+        <Link to="/projects" className="flex h-8 items-center gap-1.5 rounded border border-border/80 bg-background/50 px-2.5 text-xs font-medium text-foreground outline-none transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:ring-2 focus-visible:ring-ring">
           <Sparkles className="size-3 text-primary" aria-hidden="true" /> Browse project progress
         </Link>
       </div>
-      <p className="mt-2 text-[9px] text-muted-foreground">AI suggestions are not connected yet.</p>
+      <p className="mt-2 text-xs text-muted-foreground">AI suggestions are not connected yet.</p>
     </section>
   )
 }

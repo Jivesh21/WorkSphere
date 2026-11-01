@@ -16,7 +16,7 @@ function ActiveProjects() {
       <header className="flex items-center justify-between gap-3 border-b border-border px-3.5 py-2.5">
         <div>
           <h2 id="active-projects-title" className="text-sm font-semibold tracking-tight">Project progress</h2>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             {activeProjects.length} active · session only
           </p>
         </div>
@@ -38,13 +38,13 @@ function ActiveProjects() {
                     <Icon className="size-3" aria-hidden="true" />
                   </span>
                   <span className="min-w-0 flex-1 truncate text-xs leading-none font-medium">{project.name}</span>
-                  <span className="shrink-0 text-[10px] leading-none tabular-nums text-muted-foreground">
+                  <span className="shrink-0 text-xs leading-none tabular-nums text-muted-foreground">
                     {progress === null ? "—" : `${progress}%`}
                   </span>
                 </div>
                 <div className="mt-1.5 pl-7">
                   {progress === null ? (
-                    <p className="text-[10px] leading-none text-muted-foreground">Progress unavailable</p>
+                    <p className="text-xs leading-none text-muted-foreground">Progress unavailable</p>
                   ) : (
                     <div
                       role="progressbar"
@@ -69,13 +69,13 @@ function ActiveProjects() {
         <div className="flex min-h-28 flex-col items-center justify-center px-4 py-5 text-center">
           <FolderKanban className="size-5 text-muted-foreground" aria-hidden="true" />
           <p className="mt-2 text-xs font-medium">No active projects</p>
-          <p className="mt-1 text-[10px] text-muted-foreground">Create a project to track it here.</p>
-          <Link to="/projects" className="mt-2 text-[10px] font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">Open projects</Link>
+          <p className="mt-1 text-xs text-muted-foreground">Create a project to track it here.</p>
+          <Link to="/projects" className="mt-2 text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">Open projects</Link>
         </div>
       )}
       {activeProjects.length > 6 && (
         <div className="border-t border-border px-3.5 py-2 text-right">
-          <Link to="/projects" className="text-[10px] font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+          <Link to="/projects" className="text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
             +{activeProjects.length - 6} more
           </Link>
         </div>

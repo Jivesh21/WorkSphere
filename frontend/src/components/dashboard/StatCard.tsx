@@ -34,10 +34,10 @@ function StatCard({ label, value, description, icon: Icon, chartValues, color = 
         </span>
         <div className="min-w-0">
           <p className="truncate text-xs font-medium text-muted-foreground">{label}</p>
-          <p className={`mt-1 truncate font-semibold leading-none tracking-tight text-card-foreground ${unavailable ? "text-[10px] text-muted-foreground" : "text-xl tabular-nums"}`}>
+          <p className={`mt-1 truncate font-semibold leading-none tracking-tight text-card-foreground ${unavailable ? "text-sm text-muted-foreground" : "text-2xl tabular-nums"}`}>
             {unavailable ? "Not connected" : numericValue !== null && Number.isSafeInteger(numericValue) ? <AnimatedMetricValue value={numericValue} /> : value}
           </p>
-          <p className="mt-1 text-[10px] text-muted-foreground">{description}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{description}</p>
         </div>
       </div>
       {maxBar > 0 && (

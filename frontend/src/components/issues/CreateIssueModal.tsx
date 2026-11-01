@@ -156,7 +156,7 @@ function CreateIssueModal({ issue, onClose, onSave }: IssueFormDialogProps) {
                   className="h-9 w-full rounded-md border border-input bg-background px-2.5 text-sm outline-none placeholder:text-muted-foreground transition-[border-color,box-shadow] hover:border-ring/60 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
                   placeholder="Enter a project name"
                 />
-                <p className="mt-1 text-[11px] text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Enter a label; project records aren’t connected to issues yet.
                 </p>
               </div>
@@ -197,7 +197,7 @@ function CreateIssueModal({ issue, onClose, onSave }: IssueFormDialogProps) {
                   className="h-9 w-full rounded-md border border-input bg-background px-2.5 text-sm outline-none placeholder:text-muted-foreground transition-[border-color,box-shadow] hover:border-ring/60 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
                   placeholder="Enter a name"
                 />
-                <p className="mt-1 text-[11px] text-muted-foreground">Enter a name; there are no member records to select yet.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Enter a name; there are no member records to select yet.</p>
               </div>
             </div>
 

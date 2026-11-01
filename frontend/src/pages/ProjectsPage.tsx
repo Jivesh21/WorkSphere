@@ -104,7 +104,7 @@ function ProjectsPage() {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-semibold leading-tight tracking-tight text-foreground">Projects</h1>
-              <span className="rounded-md border border-border/80 bg-card px-2 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+              <span className="rounded-md border border-border/80 bg-card px-2 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
                 {projectList.length} {projectList.length === 1 ? "project" : "projects"}
               </span>
             </div>
@@ -127,7 +127,7 @@ function ProjectsPage() {
         {creationNotice && (
           <p role="status" className="flex items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-foreground">
             {creationNotice}
-            <button type="button" onClick={() => setCreationNotice("")} className="rounded px-2 py-1 text-[10px] font-medium text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">Dismiss</button>
+            <button type="button" onClick={() => setCreationNotice("")} className="rounded px-2 py-1 text-xs font-medium text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">Dismiss</button>
           </p>
         )}
 
@@ -160,7 +160,7 @@ function ProjectsPage() {
                     type="button"
                     aria-pressed={activeStatus === status}
                     onClick={() => setActiveStatus(status)}
-                    className={`shrink-0 rounded-md px-2.5 py-1.5 text-[10px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${activeStatus === status ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                    className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${activeStatus === status ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                   >
                     {status}<span className={`ml-1.5 tabular-nums ${activeStatus === status ? "text-primary/70" : "text-muted-foreground/70"}`}>{count}</span>
                   </button>
@@ -187,23 +187,23 @@ function ProjectsPage() {
               title="No projects yet"
               description="Create a project to start organizing related work."
               action={(
-                <button type="button" onClick={openCreateProject} className="mt-3 inline-flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-[10px] font-medium text-primary-foreground outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none">
+                <button type="button" onClick={openCreateProject} className="mt-3 inline-flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none">
                   <Plus className="size-3" aria-hidden="true" /> Create project
                 </button>
               )}
             />
           ) : search.trim() && activeStatus !== "All" ? (
-            <EmptyState title="No projects match these filters" description="No project matches this search and status. Clear the filters to see your projects." action={<button type="button" onClick={clearFilters} className="mt-3 rounded-md px-3 py-1.5 text-[10px] font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Clear filters</button>} />
+            <EmptyState title="No projects match these filters" description="No project matches this search and status. Clear the filters to see your projects." action={<button type="button" onClick={clearFilters} className="mt-3 rounded-md px-3 py-1.5 text-xs font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Clear filters</button>} />
           ) : activeStatus !== "All" ? (
-            <EmptyState title={`No ${activeStatus.toLowerCase()} projects`} description="There are no projects with this status yet." action={<button type="button" onClick={() => setActiveStatus("All")} className="mt-3 rounded-md px-3 py-1.5 text-[10px] font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Show all projects</button>} />
+            <EmptyState title={`No ${activeStatus.toLowerCase()} projects`} description="There are no projects with this status yet." action={<button type="button" onClick={() => setActiveStatus("All")} className="mt-3 rounded-md px-3 py-1.5 text-xs font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Show all projects</button>} />
           ) : search.trim() ? (
-            <EmptyState title="No projects match your search" description="Try a different project name or code." action={<button type="button" onClick={() => setSearch("")} className="mt-3 rounded-md px-3 py-1.5 text-[10px] font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Clear search</button>} />
+            <EmptyState title="No projects match your search" description="Try a different project name or code." action={<button type="button" onClick={() => setSearch("")} className="mt-3 rounded-md px-3 py-1.5 text-xs font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Clear search</button>} />
           ) : (
             <EmptyState
               title="No matching projects"
               description="Try another name or code, or clear the current filters."
               action={hasActiveFilters ? (
-                <button type="button" onClick={clearFilters} className="mt-3 rounded-md px-3 py-1.5 text-[10px] font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Clear filters</button>
+                <button type="button" onClick={clearFilters} className="mt-3 rounded-md px-3 py-1.5 text-xs font-medium text-primary outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring">Clear filters</button>
               ) : null}
             />
           )}
@@ -234,19 +234,19 @@ function ProjectCard({ project, view, onEdit }: { project: Project; view: Projec
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
               <h2 className="min-w-0 truncate text-sm font-semibold tracking-tight text-card-foreground">{project.name}</h2>
-              <span className="rounded border border-border/70 bg-muted/50 px-1.5 py-0.5 font-mono text-[9px] font-medium text-muted-foreground">{project.code}</span>
+              <span className="rounded border border-border/70 bg-muted/50 px-1.5 py-0.5 font-mono text-xs font-medium text-muted-foreground">{project.code}</span>
             </div>
-            {project.description && <p className="mt-1.5 line-clamp-2 text-[10px] leading-4 text-muted-foreground">{project.description}</p>}
+            {project.description && <p className="mt-1.5 line-clamp-2 text-xs leading-4 text-muted-foreground">{project.description}</p>}
           </div>
         </div>
 
         <div className={`flex min-w-0 flex-wrap items-center gap-1.5 ${view === "grid" ? "mt-auto border-t border-border/70 pt-3" : "sm:ml-4 sm:shrink-0"}`}>
-          <span className={`inline-flex items-center gap-1.5 rounded px-2 py-1 text-[9px] font-medium ${projectStatusTone[project.status]}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium ${projectStatusTone[project.status]}`}>
             <span className={`size-1.5 rounded-full ${projectStatusDot[project.status]}`} aria-hidden="true" />{project.status}
           </span>
-          {project.health && <span className={`rounded border px-2 py-1 text-[9px] font-medium ${project.health === "At risk" ? "border-destructive/20 bg-destructive/10 text-destructive" : "border-chart-4/20 bg-chart-4/10 text-chart-4"}`}>{project.health}</span>}
+          {project.health && <span className={`rounded border px-2 py-1 text-xs font-medium ${project.health === "At risk" ? "border-destructive/20 bg-destructive/10 text-destructive" : "border-chart-4/20 bg-chart-4/10 text-chart-4"}`}>{project.health}</span>}
           {project.dueDate && (
-            <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/20 px-2 py-1 text-[9px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/20 px-2 py-1 text-xs text-muted-foreground">
               <CalendarDays className="size-3" aria-hidden="true" /> Due {formatDueDate(project.dueDate)}
             </span>
           )}
@@ -272,7 +272,7 @@ function EmptyState({ title, description, action }: { title: string; description
         <FolderKanban className="size-4" aria-hidden="true" />
       </span>
       <p className="text-xs font-semibold tracking-tight">{title}</p>
-      <p className="mt-1 max-w-sm text-[10px] leading-4 text-muted-foreground">{description}</p>
+      <p className="mt-1 max-w-sm text-xs leading-4 text-muted-foreground">{description}</p>
       {action}
     </div>
   )

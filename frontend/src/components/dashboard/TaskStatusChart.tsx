@@ -28,7 +28,7 @@ function TaskStatusChart() {
       <header className="flex items-center justify-between border-b border-border px-4 py-3.5">
         <div>
           <h2 id="task-status-title" className="text-sm font-semibold tracking-tight">Task status</h2>
-          <p className="mt-0.5 text-[10px] text-muted-foreground">Current distribution <span aria-hidden="true">·</span> session only</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">Current distribution <span aria-hidden="true">·</span> session only</p>
         </div>
         <span className="flex size-8 items-center justify-center rounded-md border border-border/70 bg-muted/50 text-muted-foreground"><ChartNoAxesCombined className="size-3.5" aria-hidden="true" /></span>
       </header>
@@ -50,7 +50,7 @@ function TaskStatusChart() {
             </ResponsiveContainer>
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-2xl font-semibold leading-none tabular-nums tracking-tight">{total}</span>
-              <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Tasks</span>
+              <span className="mt-1 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Tasks</span>
             </div>
           </div>
           <ul className="space-y-3">
@@ -59,9 +59,9 @@ function TaskStatusChart() {
               const share = total ? Math.round((count / total) * 100) : 0
               return (
                 <li key={status} className="space-y-1">
-                  <div className="flex items-center justify-between gap-3 text-[11px]">
+                  <div className="flex items-center justify-between gap-3 text-xs">
                     <span className="flex min-w-0 items-center gap-2 text-muted-foreground"><span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: colors[status] }} />{taskStatusLabels[status]}</span>
-                    <span className="shrink-0 font-medium tabular-nums text-foreground">{count}<span className="ml-1 text-[9px] font-normal text-muted-foreground">{share}%</span></span>
+                    <span className="shrink-0 font-medium tabular-nums text-foreground">{count}<span className="ml-1 text-xs font-normal text-muted-foreground">{share}%</span></span>
                   </div>
                   <div aria-hidden="true" className="h-1 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full transition-[width] duration-200 motion-reduce:transition-none" style={{ width: `${share}%`, backgroundColor: colors[status] }} /></div>
                 </li>

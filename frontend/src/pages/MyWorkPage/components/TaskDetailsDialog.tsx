@@ -129,7 +129,7 @@ function TaskDetailsDialog({
       >
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-border px-4 py-3.5 sm:px-5">
           <div className="min-w-0">
-            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Task details</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Task details</p>
             <h2 id={titleId} className="mt-1 truncate text-base font-semibold tracking-tight">{task.title}</h2>
             <p id={descriptionId} className="mt-1 text-xs text-muted-foreground">
               Progress is separate from workflow status and is updated from this session's task record.
@@ -170,7 +170,7 @@ function TaskDetailsDialog({
               <span className="text-xl font-semibold tabular-nums tracking-tight">{progress ? `${progress.percentage}%` : "Not tracked"}</span>
             </div>
             {progress && <TaskProgressBar value={progress.percentage} className="mt-3 h-2" />}
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               Task status is separate. Completing every subtask does not change it.
             </p>
           </section>
@@ -181,7 +181,7 @@ function TaskDetailsDialog({
                 <h3 id="subtasks-heading" className="text-sm font-semibold">Subtasks</h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">Add smaller steps to calculate task progress.</p>
               </div>
-              <span className="rounded bg-muted px-2 py-1 text-[10px] font-medium tabular-nums text-muted-foreground">{completedSubtasks}/{task.subtasks.length}</span>
+              <span className="rounded bg-muted px-2 py-1 text-xs font-medium tabular-nums text-muted-foreground">{completedSubtasks}/{task.subtasks.length}</span>
             </div>
 
             {task.subtasks.length === 0 ? (
@@ -233,7 +233,7 @@ function TaskDetailsDialog({
                   aria-describedby={addError ? "new-subtask-error" : undefined}
                   className="h-9 w-full rounded-md border border-input bg-background px-2.5 text-xs outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring aria-invalid:border-destructive"
                 />
-                {addError && <p id="new-subtask-error" role="alert" className="mt-1 text-[11px] text-destructive">{addError}</p>}
+                {addError && <p id="new-subtask-error" role="alert" className="mt-1 text-xs text-destructive">{addError}</p>}
               </div>
               <button type="submit" aria-label="Add subtask" className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-medium outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">
                 <Plus className="size-3.5" aria-hidden="true" /> Add
@@ -256,7 +256,7 @@ function TaskDetailsDialog({
 function InfoField({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-0.5 truncate text-xs font-medium">{value}</p>
     </div>
   )

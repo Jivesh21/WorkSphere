@@ -32,8 +32,8 @@ function UpcomingDeadlines() {
         <div className="flex min-h-12 items-center gap-2 px-2.5 py-2">
           <CalendarClock className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] leading-tight font-medium">Nothing due this week</p>
-            <p className="mt-1 text-[10px] leading-tight text-muted-foreground">
+            <p className="text-xs leading-tight font-medium">Nothing due this week</p>
+            <p className="mt-1 text-xs leading-tight text-muted-foreground">
               No due-dated open issues are available in this session.
             </p>
           </div>
@@ -52,10 +52,10 @@ function UpcomingDeadlines() {
                     {overdue ? <AlertCircle className="size-3" aria-hidden="true" /> : <CalendarClock className="size-3" aria-hidden="true" />}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[11px] leading-tight font-medium text-foreground group-hover:text-primary">{issue.title}</span>
-                    <span className="mt-1 block truncate text-[10px] leading-tight text-muted-foreground">{issue.key} · {issue.project}</span>
+                    <span className="block truncate text-xs leading-tight font-medium text-foreground group-hover:text-primary">{issue.title}</span>
+                    <span className="mt-1 block truncate text-xs leading-tight text-muted-foreground">{issue.key} · {issue.project}</span>
                   </span>
-                  <span className={`shrink-0 text-[10px] leading-none font-medium tabular-nums ${overdue ? "text-destructive" : "text-muted-foreground"}`}>
+                  <span className={`shrink-0 text-xs leading-none font-medium tabular-nums ${overdue ? "text-destructive" : "text-muted-foreground"}`}>
                     {new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short" }).format(due)}
                   </span>
                 </Link>
@@ -66,7 +66,7 @@ function UpcomingDeadlines() {
       )}
       {attentionIssues.length > 5 && (
         <div className="border-t border-border px-2 py-1 text-right">
-          <Link to="/issues" className="text-[10px] font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+          <Link to="/issues" className="text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
             View all {attentionIssues.length} due issues
           </Link>
         </div>

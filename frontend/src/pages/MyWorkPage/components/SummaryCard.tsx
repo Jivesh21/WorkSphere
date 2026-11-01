@@ -19,7 +19,7 @@ function SummaryCard({
         {value}
       </p>
 
-      <p className="mt-1 text-[11px] text-muted-foreground">
+      <p className="mt-1 text-xs text-muted-foreground">
         {description}
       </p>
     </div>

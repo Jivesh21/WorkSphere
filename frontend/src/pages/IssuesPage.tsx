@@ -158,7 +158,7 @@ function IssuesPage() {
             <p className="text-xs text-muted-foreground" aria-live="polite">
               {visibleIssues.length} {visibleIssues.length === 1 ? "issue" : "issues"} in this session
             </p>
-            <p className="hidden text-[10px] text-muted-foreground sm:block">Select an issue to view details</p>
+            <p className="hidden text-xs text-muted-foreground sm:block">Select an issue to view details</p>
           </div>
 
           {visibleIssues.length > 0 ? (
@@ -228,9 +228,9 @@ function IssueRow({ issue, onOpen }: { issue: Issue; onOpen: () => void }) {
           <span className="min-w-0">
             <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
               <span className="truncate text-sm font-medium">{issue.title}</span>
-              <span className="font-mono text-[10px] text-muted-foreground">{issue.key}</span>
+              <span className="font-mono text-xs text-muted-foreground">{issue.key}</span>
             </span>
-            <span className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 text-[11px] text-muted-foreground">
+            <span className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
               <span>{issue.status}</span>
               {(issue.project || issue.assignee || issue.dueDate) && <span aria-hidden="true">|</span>}
               {issue.project && <span className="truncate">{issue.project}</span>}
@@ -260,7 +260,7 @@ function IssueStatusIcon({ status }: { status: IssueStatus }) {
 function PriorityBadge({ priority }: { priority: IssuePriority }) {
   const icon = priority === "Critical" ? <TriangleAlert className="size-3" aria-hidden="true" /> : null
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-2.5 py-1 text-[10px] font-medium text-foreground">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-2.5 py-1 text-xs font-medium text-foreground">
       {icon}{priority}
     </span>
   )

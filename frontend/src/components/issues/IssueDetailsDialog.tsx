@@ -94,19 +94,19 @@ function IssueDetailsDialog({ issue, onClose, onEdit }: IssueDetailsDialogProps)
           <dl className="grid gap-4 border-t border-border pt-4 sm:grid-cols-2">
             {issue.project && (
               <div>
-                <dt className="text-[11px] text-muted-foreground">Project</dt>
+                <dt className="text-xs text-muted-foreground">Project</dt>
                 <dd className="mt-1 text-sm">{issue.project}</dd>
               </div>
             )}
             {issue.assignee && (
               <div>
-                <dt className="text-[11px] text-muted-foreground">Assignee</dt>
+                <dt className="text-xs text-muted-foreground">Assignee</dt>
                 <dd className="mt-1 text-sm">{issue.assignee}</dd>
               </div>
             )}
             {issue.dueDate && (
               <div>
-                <dt className="text-[11px] text-muted-foreground">Due date</dt>
+                <dt className="text-xs text-muted-foreground">Due date</dt>
                 <dd className="mt-1 inline-flex items-center gap-1.5 text-sm">
                   <CalendarDays className="size-3.5 text-muted-foreground" aria-hidden="true" />
                   {formatDate(issue.dueDate)}

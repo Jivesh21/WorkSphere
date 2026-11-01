@@ -160,11 +160,11 @@ export function WorkflowGraphic() {
         </div>
 
         <div className="mt-2 flex justify-between">
-          <span className="text-[10px] text-[#6B6B74]">
+          <span className="text-xs text-[#6B6B74]">
             Project Alpha
           </span>
 
-          <span className="text-[10px] text-[#818CF8]">
+          <span className="text-xs text-[#818CF8]">
             66%
           </span>
         </div>
@@ -182,7 +182,7 @@ export function WorkflowGraphic() {
           </span>
         </div>
 
-        <p className="mt-2 text-[11px] text-[#6B6B74]">
+        <p className="mt-2 text-xs text-[#6B6B74]">
           3 of 5 tasks completed
         </p>
 

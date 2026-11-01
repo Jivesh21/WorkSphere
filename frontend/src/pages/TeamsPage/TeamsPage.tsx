@@ -35,7 +35,7 @@ function MemberWorkload({ name, email, tasks }: { name: string; email: string; t
         </div>
         <div className="rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-right">
           <p className="text-sm font-semibold tabular-nums">{tasks.length}</p>
-          <p className="text-[10px] text-muted-foreground">assigned</p>
+          <p className="text-xs text-muted-foreground">assigned</p>
         </div>
       </div>
 
@@ -46,7 +46,7 @@ function MemberWorkload({ name, email, tasks }: { name: string; email: string; t
       </div>
 
       <div className="px-4 py-3 sm:px-5">
-        <div className="flex items-center justify-between gap-3 text-[11px]">
+        <div className="flex items-center justify-between gap-3 text-xs">
           <span className="text-muted-foreground">Completion across matching tasks</span>
           <span className="font-medium tabular-nums">{tasks.length ? `${completion}%` : "No assigned tasks"}</span>
         </div>
@@ -61,7 +61,7 @@ function MemberWorkload({ name, email, tasks }: { name: string; email: string; t
             <li key={task.id} className="flex min-w-0 items-center gap-3 px-4 py-2.5 sm:px-5">
               <span className={`size-1.5 shrink-0 rounded-full ${task.status === "DONE" ? "bg-chart-4" : isOverdue(task) ? "bg-destructive" : "bg-primary"}`} aria-hidden="true" />
               <span className={`min-w-0 flex-1 truncate text-xs font-medium ${task.status === "DONE" ? "text-muted-foreground line-through" : ""}`}>{task.title}</span>
-              <span className={`inline-flex shrink-0 items-center gap-1 text-[10px] ${isOverdue(task) ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+              <span className={`inline-flex shrink-0 items-center gap-1 text-xs ${isOverdue(task) ? "font-medium text-destructive" : "text-muted-foreground"}`}>
                 {isOverdue(task) && <ShieldAlert className="size-3" aria-hidden="true" />}
                 {task.dueDate ? (isOverdue(task) ? `Overdue · ${formatDueDate(task.dueDate)}` : formatDueDate(task.dueDate)) : "No due date"}
               </span>
@@ -77,7 +77,7 @@ function WorkloadMetric({ label, value, tone = "normal" }: { label: string; valu
   return (
     <div className="px-3 py-2.5 text-center">
       <p className={`text-sm font-semibold tabular-nums ${tone === "danger" ? "text-destructive" : ""}`}>{value}</p>
-      <p className="mt-0.5 text-[10px] text-muted-foreground">{label}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
     </div>
   )
 }
@@ -88,8 +88,8 @@ function InputAvailability({ label, available, detail }: { label: string; availa
       <span className={`mt-1.5 size-1.5 shrink-0 rounded-full ${available ? "bg-primary" : "bg-muted-foreground/40"}`} aria-hidden="true" />
       <span className="min-w-0">
         <span className="text-xs font-medium">{label}</span>
-        <span className="ml-2 text-[10px] text-muted-foreground">{available ? "Available" : "Not available"}</span>
-        <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">{detail}</span>
+        <span className="ml-2 text-xs text-muted-foreground">{available ? "Available" : "Not available"}</span>
+        <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">{detail}</span>
       </span>
     </li>
   )
@@ -132,7 +132,7 @@ function TeamsPage() {
         <div className="flex flex-wrap items-start gap-2 rounded-md border border-primary/15 bg-primary/[0.04] px-3 py-2.5 text-xs text-muted-foreground">
           <UsersRound className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden="true" />
           <p className="min-w-0 flex-1 leading-relaxed">The workspace member directory is not connected. This view can currently report only tasks assigned to your signed-in account; task data is session-only and does not persist after reload.</p>
-          <span className="shrink-0 rounded border border-border bg-background px-2 py-1 text-[10px]">Account workload only</span>
+          <span className="shrink-0 rounded border border-border bg-background px-2 py-1 text-xs">Account workload only</span>
         </div>
 
         <section aria-labelledby="workload-summary-heading">
@@ -142,7 +142,7 @@ function TeamsPage() {
               <p className="mt-0.5 text-xs text-muted-foreground">Counts update with the due-date period and task-status filters.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <label htmlFor={periodId} className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground"><CalendarClock className="size-3.5" aria-hidden="true" />Due-date period</label>
+              <label htmlFor={periodId} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"><CalendarClock className="size-3.5" aria-hidden="true" />Due-date period</label>
               <select id={periodId} value={period} onChange={(event) => setPeriod(event.target.value as WorkloadPeriod)} className="h-8 rounded-md border border-input bg-background px-2 text-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40">
                 <option value="all">All due dates</option>
                 <option value="7">Overdue + next 7 days</option>
@@ -179,8 +179,8 @@ function TeamsPage() {
           </header>
 
           <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/15 px-4 py-2 sm:px-5">
-            <p className="text-[11px] text-muted-foreground" aria-live="polite">{memberVisible ? "1 account" : "0 accounts"} · {matchingTasks.length} matching {matchingTasks.length === 1 ? "task" : "tasks"}</p>
-            <p className="hidden items-center gap-1 text-[10px] text-muted-foreground sm:flex"><Clock3 className="size-3" aria-hidden="true" />No capacity data</p>
+            <p className="text-xs text-muted-foreground" aria-live="polite">{memberVisible ? "1 account" : "0 accounts"} · {matchingTasks.length} matching {matchingTasks.length === 1 ? "task" : "tasks"}</p>
+            <p className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex"><Clock3 className="size-3" aria-hidden="true" />No capacity data</p>
           </div>
 
           <div className="space-y-3 p-3 sm:p-4">
@@ -189,7 +189,7 @@ function TeamsPage() {
             ) : (
               <div className="rounded-md border border-dashed border-border px-4 py-8 text-center">
                 <p className="text-xs font-medium">{user ? (search ? "No matching members" : "No matching assigned tasks") : "Member data unavailable"}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">{user ? "Try another search or adjust the date and status filters. Other workspace members are not available to this frontend yet." : "Sign in to view tasks assigned to your account."}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{user ? "Try another search or adjust the date and status filters. Other workspace members are not available to this frontend yet." : "Sign in to view tasks assigned to your account."}</p>
               </div>
             )}
           </div>
@@ -201,7 +201,7 @@ function TeamsPage() {
               <h2 id="recommendation-preview-heading" className="text-sm font-semibold">Assignment recommendation preview</h2>
               <p className="mt-0.5 text-xs text-muted-foreground">Future capability · recommendations are not available</p>
             </div>
-            <span className="rounded border border-border bg-muted/40 px-2 py-1 text-[10px] font-medium text-muted-foreground">Preview only</span>
+            <span className="rounded border border-border bg-muted/40 px-2 py-1 text-xs font-medium text-muted-foreground">Preview only</span>
           </header>
           <div className="grid gap-4 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(220px,0.8fr)] sm:px-5">
             <ul className="divide-y divide-border sm:grid sm:grid-cols-2 sm:gap-x-5 sm:divide-y-0">
@@ -214,7 +214,7 @@ function TeamsPage() {
             </ul>
             <div className="flex flex-col justify-center rounded-md border border-dashed border-border bg-muted/15 px-3 py-3">
               <p className="text-xs font-medium">No recommendation generated</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">Recommendations require shared member and workload data. This preview does not assign work or rank team members.</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Recommendations require shared member and workload data. This preview does not assign work or rank team members.</p>
             </div>
           </div>
         </section>
@@ -222,9 +222,9 @@ function TeamsPage() {
         <section aria-labelledby="directory-status-heading" className="flex flex-col gap-3 rounded-lg border border-border bg-muted/15 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div>
             <h2 id="directory-status-heading" className="text-xs font-semibold">Workspace member directory</h2>
-            <p className="mt-1 text-[11px] text-muted-foreground">Team creation, invitations, roles, and workspace membership are not connected to this page.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Team creation, invitations, roles, and workspace membership are not connected to this page.</p>
           </div>
-          <Link to="/workspace" className="inline-flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-[11px] font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">Workspace setup <ArrowRight className="size-3" aria-hidden="true" /></Link>
+          <Link to="/workspace" className="inline-flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">Workspace setup <ArrowRight className="size-3" aria-hidden="true" /></Link>
         </section>
       </div>
     </DashboardLayout>
@@ -234,9 +234,9 @@ function TeamsPage() {
 function SummaryTile({ label, value, detail, danger = false }: { label: string; value: number; detail: string; danger?: boolean }) {
   return (
     <div className="rounded-lg border border-border bg-card px-3 py-2.5">
-      <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
       <p className={`mt-1 text-lg font-semibold tabular-nums ${danger ? "text-destructive" : ""}`}>{value}</p>
-      <p className="mt-0.5 text-[10px] text-muted-foreground">{detail}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{detail}</p>
     </div>
   )
 }

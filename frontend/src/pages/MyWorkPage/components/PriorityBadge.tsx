@@ -12,7 +12,7 @@ const priorityStyles: Record<TaskPriority, string> = {
 
 function PriorityBadge({ priority }: PriorityBadgeProps) {
   return (
-    <span className={`inline-flex shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${priorityStyles[priority]}`}>
+    <span className={`inline-flex shrink-0 rounded px-1.5 py-0.5 text-xs font-semibold ${priorityStyles[priority]}`}>
       {taskPriorityLabels[priority]}
     </span>
   )
