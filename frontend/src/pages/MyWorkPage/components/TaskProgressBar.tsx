@@ -5,7 +5,7 @@ interface TaskProgressBarProps {
 
 function TaskProgressBar({ value, className = "" }: TaskProgressBarProps) {
   if (value === null) {
-    return <span aria-label="Progress not tracked" className={`inline-flex items-center text-[10px] leading-none text-muted-foreground ${className}`}>Not tracked</span>
+    return <span aria-label="Progress not tracked" className={`inline-flex items-center text-xs leading-none text-muted-foreground ${className}`}>Not tracked</span>
   }
   const safeValue = Math.min(100, Math.max(0, Math.round(value)))
   return (

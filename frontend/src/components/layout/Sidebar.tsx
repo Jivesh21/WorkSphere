@@ -27,7 +27,7 @@ function Sidebar() {
           </span>
           <span className="min-w-0 leading-none">
             <span className="block text-sm font-semibold tracking-tight">WorkSphere</span>
-            <span className="mt-0.5 block text-[9px] font-medium uppercase tracking-[0.14em] text-sidebar-foreground/55">Project workspace</span>
+            <span className="mt-0.5 block text-xs font-medium uppercase tracking-[0.14em] text-sidebar-foreground/55">Project workspace</span>
           </span>
         </Link>
       </div>
@@ -39,7 +39,7 @@ function Sidebar() {
         {projects.length > 0 && (
           <section className="mb-4" aria-label="Your projects">
             <div className="mb-1.5 flex items-center justify-between px-2">
-              <h2 className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/55">Your projects</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/55">Your projects</p>
               <Link to="/projects" aria-label="Add a project" className="rounded p-0.5 text-sidebar-foreground/60 outline-none hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring">+</Link>
             </div>
             <nav className="space-y-0.5" aria-label="Project navigation">
@@ -48,7 +48,7 @@ function Sidebar() {
                   key={project.id}
                   to="/projects"
                   aria-label={`${project.name}, projects`}
-                  className="flex h-9 items-center gap-2.5 rounded-md px-2.5 text-xs font-medium text-sidebar-foreground/75 outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+                  className="flex h-9 items-center gap-2.5 rounded-md px-2.5 text-sm font-medium text-sidebar-foreground/75 outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring"
                 >
                   <FolderKanban className="size-3.5 shrink-0 text-sidebar-foreground/60" aria-hidden="true" />
                   <span className="truncate">{project.name}</span>
@@ -69,7 +69,7 @@ function Sidebar() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-xs font-medium">{displayName}</span>
-            <span className="mt-0.5 block truncate text-[11px] text-sidebar-foreground/60">{user?.email ?? "Account"}</span>
+            <span className="mt-0.5 block truncate text-xs text-sidebar-foreground/60">{user?.email ?? "Account"}</span>
           </span>
         </div>
       </div>
@@ -80,7 +80,7 @@ function Sidebar() {
 function NavigationGroup({ section, isActive }: { section: NavigationSection; isActive: (href: string) => boolean }) {
   return (
     <section className="mb-5" aria-label={section.title}>
-      <h2 className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/55">{section.title}</h2>
+      <p className="mb-1.5 px-2 text-xs font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/55">{section.title}</p>
       <nav className="space-y-1" aria-label={`${section.title} navigation`}>
         {section.items.map(({ label, href, icon: Icon }) => {
           const active = isActive(href)
@@ -89,7 +89,7 @@ function NavigationGroup({ section, isActive }: { section: NavigationSection; is
               key={href}
               to={href}
               aria-current={active ? "page" : undefined}
-              className={`group relative flex h-9 w-full items-center gap-2.5 rounded-md px-2.5 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-sidebar-ring ${active ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground"}`}
+              className={`group relative flex h-9 w-full items-center gap-2.5 rounded-md px-2.5 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-sidebar-ring ${active ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground"}`}
             >
               {active && <m.span layoutId="sidebar-active-indicator" aria-hidden="true" transition={{ duration: 0.18, ease: "easeOut" }} className="absolute inset-y-1 left-0 w-0.5 rounded-r bg-sidebar-primary" />}
               <Icon className={`size-3.5 shrink-0 transition-colors duration-150 ${active ? "text-sidebar-primary" : "text-sidebar-foreground/65 group-hover:text-sidebar-foreground"}`} strokeWidth={1.8} aria-hidden="true" />

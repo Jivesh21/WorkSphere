@@ -31,7 +31,7 @@ function MyWorkload() {
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label="Completion of tasks assigned to you" aria-valuemin={0} aria-valuemax={100} aria-valuenow={completion}>
               <div className="h-full rounded-full bg-primary transition-[width] motion-reduce:transition-none" style={{ width: `${completion}%` }} />
             </div>
-            <p className="mt-1 text-[10px] text-muted-foreground">{completed} completed · {assigned.length - completed} open</p>
+            <p className="mt-1 text-xs text-muted-foreground">{completed} completed · {assigned.length - completed} open</p>
           </div>
         </div>
       ) : (

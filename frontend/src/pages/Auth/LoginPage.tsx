@@ -104,7 +104,7 @@ function LoginPage() {
               Welcome back
             </h1>
 
-            <p className="mt-1.5 text-[14px] text-[#9A9AA2]">
+            <p className="mt-1.5 text-sm text-[#9A9AA2]">
               Sign in to continue to your workspace.
             </p>
           </div>
@@ -149,7 +149,7 @@ function LoginPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="h-11 w-full bg-[#6366F1] text-[14px] font-medium text-white transition-all duration-200 hover:bg-[#4F46E5] hover:shadow-[0_8px_24px_rgba(99,102,241,0.18)] active:scale-[0.99] disabled:opacity-60"
+              className="h-11 w-full bg-[#6366F1] text-sm font-medium text-white transition-all duration-200 hover:bg-[#4F46E5] hover:shadow-[0_8px_24px_rgba(99,102,241,0.18)] active:scale-[0.99] disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>

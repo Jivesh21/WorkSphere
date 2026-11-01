@@ -98,7 +98,7 @@ function AssigneeSelector({ inputId: providedInputId, members, value, selectedNa
           {filtered.map((member, index) => (
             <li key={member.id}>
               <div id={`${id}-option-${index + 1}`} role="option" aria-selected={value === member.id} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(member)} className={`flex cursor-pointer items-center gap-2 rounded px-2 py-2 text-left text-xs outline-none ${activeIndex === index + 1 ? "bg-accent text-accent-foreground" : "hover:bg-muted"}`}>
-                <span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[9px] font-semibold text-primary">{initials(member.name) || <UserRound className="size-3" />}</span>
+                <span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{initials(member.name) || <UserRound className="size-3" />}</span>
                 <span className="min-w-0 flex-1 truncate">{member.name}</span>
                 {value === member.id && <Check className="size-3.5 text-primary" aria-hidden="true" />}
               </div>

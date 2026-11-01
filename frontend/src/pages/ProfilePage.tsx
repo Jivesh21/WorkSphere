@@ -84,7 +84,7 @@ function ProfilePage() {
               <Button type="button" variant="outline" disabled={avatarLoading} onClick={() => fileRef.current?.click()} className="gap-2">
                 <Camera className="size-4" />{avatarLoading ? "Preparing…" : "Choose photo"}
               </Button>
-              <p className="mt-1.5 text-center text-[11px] text-muted-foreground">JPG, PNG or WebP · 2 MB max</p>
+              <p className="mt-1.5 text-center text-xs text-muted-foreground">JPG, PNG or WebP · 2 MB max</p>
             </div>
           </section>
 
@@ -103,7 +103,7 @@ function ProfilePage() {
                 <div>
                   <label htmlFor="profile-email" className="mb-1.5 block text-xs font-medium">Email address</label>
                   <div className="relative"><Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input id="profile-email" value={user.email} readOnly className="pl-9" /></div>
-                  <p className="mt-1.5 text-[11px] text-muted-foreground">Email changes require a verification flow that is not currently available.</p>
+                  <p className="mt-1.5 text-xs text-muted-foreground">Email changes require a verification flow that is not currently available.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 pt-1">
                   <Button type="button" variant="outline" onClick={() => { setName(user.name); setError(""); setSaved(false) }}>Cancel</Button>

@@ -41,7 +41,7 @@ function TaskRow({ task, onToggleTask, onEditTask, onViewTask }: TaskRowProps) {
           {task.projectName && <span className="max-w-40 truncate">{task.projectName}</span>}
           {task.assignedUserId !== null && task.assignedUserName && (
             <span className="inline-flex min-w-0 items-center gap-1.5 truncate">
-              <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[9px] font-semibold text-primary">{getInitials(task.assignedUserName)}</span>
+              <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{getInitials(task.assignedUserName)}</span>
               <span className="truncate">{task.assignedUserName}</span>
             </span>
           )}
@@ -63,8 +63,8 @@ function TaskRow({ task, onToggleTask, onEditTask, onViewTask }: TaskRowProps) {
       </div>
 
       <div className="flex w-[104px] shrink-0 items-center gap-1.5 pt-1" aria-label={progress ? `Progress ${progress.percentage}%, ${progress.completed} of ${progress.total} subtasks complete` : "Progress not tracked"}>
-        <TaskProgressBar value={progress?.percentage ?? null} className={progress ? "w-9" : "text-[9px]"} />
-        {progress && <span className="w-7 text-right text-[10px] tabular-nums text-muted-foreground">{progress.percentage}%</span>}
+        <TaskProgressBar value={progress?.percentage ?? null} className={progress ? "w-9" : "text-xs"} />
+        {progress && <span className="w-7 text-right text-xs tabular-nums text-muted-foreground">{progress.percentage}%</span>}
       </div>
 
       <button type="button" onClick={() => onViewTask(task)} aria-label={`View progress and subtasks for ${task.title}`} className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">

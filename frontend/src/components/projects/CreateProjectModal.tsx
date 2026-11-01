@@ -211,7 +211,7 @@ function CreateProjectModal({ open, onClose, onCreate, onUpdate, initialProject 
                 <section aria-labelledby={`${dialogTitleId}-identity`} className="space-y-3.5">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b border-border pb-2">
                     <h3 id={`${dialogTitleId}-identity`} className="text-sm font-semibold tracking-tight">Project identity</h3>
-                    <p className="text-[11px] text-muted-foreground">Name, key and visual identifier</p>
+                    <p className="text-xs text-muted-foreground">Name, key and visual identifier</p>
                   </div>
 
                   <div>
@@ -288,7 +288,7 @@ function CreateProjectModal({ open, onClose, onCreate, onUpdate, initialProject 
                         placeholder="e.g. MOB"
                       />
                       {error && error !== "Enter a project name." && <p id="project-code-error" role="alert" className="mt-1 text-xs text-destructive">{error}</p>}
-                      <p id="project-code-help" className="mt-1 text-[10px] text-muted-foreground">2 to 8 letters, numbers, or hyphens. Suggested from the name.</p>
+                      <p id="project-code-help" className="mt-1 text-xs text-muted-foreground">2 to 8 letters, numbers, or hyphens. Suggested from the name.</p>
                     </div>
 
                     <div className="shrink-0">
@@ -317,7 +317,7 @@ function CreateProjectModal({ open, onClose, onCreate, onUpdate, initialProject 
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-xs font-medium">{name.trim() || "Untitled project"}</span>
-                      <span className="mt-0.5 block truncate font-mono text-[10px] tracking-wide text-muted-foreground">{code.trim().toUpperCase() || "PROJECT KEY"}</span>
+                      <span className="mt-0.5 block truncate font-mono text-xs tracking-wide text-muted-foreground">{code.trim().toUpperCase() || "PROJECT KEY"}</span>
                     </span>
                     <span className={`size-2 shrink-0 rounded-full ${selectedAccent.swatch}`} aria-label={`${selectedAccent.label} accent`} />
                   </div>
@@ -326,7 +326,7 @@ function CreateProjectModal({ open, onClose, onCreate, onUpdate, initialProject 
                 <section aria-labelledby={`${dialogTitleId}-details`} className="space-y-3.5 border-t border-border pt-3.5">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b border-border pb-2">
                     <h3 id={`${dialogTitleId}-details`} className="text-sm font-semibold tracking-tight">Details</h3>
-                    <p className="text-[11px] text-muted-foreground">Optional context and planning</p>
+                    <p className="text-xs text-muted-foreground">Optional context and planning</p>
                   </div>
                   <div>
                     <label htmlFor="project-description" className={labelClassName}>Description <span className="font-normal text-muted-foreground">(optional)</span></label>

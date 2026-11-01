@@ -68,7 +68,7 @@ function MyTasks() {
       <header className="flex items-center justify-between gap-3 border-b border-border px-3.5 py-2.5">
         <div>
           <h2 id="my-tasks-title" className="text-sm font-semibold leading-tight">My tasks</h2>
-          <p className="mt-1 text-[11px] leading-none text-muted-foreground">{tasks.filter((task) => task.status !== "DONE").length} open · {tasks.length} total</p>
+          <p className="mt-1 text-xs leading-none text-muted-foreground">{tasks.filter((task) => task.status !== "DONE").length} open · {tasks.length} total</p>
         </div>
         <Link to="/work" className="rounded-sm text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">View all</Link>
       </header>
@@ -79,7 +79,7 @@ function MyTasks() {
             type="button"
             aria-pressed={filter === status}
             onClick={() => setFilter(status)}
-            className={`shrink-0 rounded-full px-2 py-1.5 text-[10px] leading-none font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${filter === status ? "bg-primary text-primary-foreground" : "border border-border/70 text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+            className={`shrink-0 rounded-full px-2 py-1.5 text-xs leading-none font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${filter === status ? "bg-primary text-primary-foreground" : "border border-border/70 text-muted-foreground hover:bg-muted hover:text-foreground"}`}
           >
             {filterLabel(status)} <span className="tabular-nums opacity-70">{counts[status]}</span>
           </button>
@@ -99,16 +99,16 @@ function MyTasks() {
                 <div className="min-w-0">
                   <Link to="/work" className={`block truncate text-xs font-medium leading-5 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-ring ${done ? "text-muted-foreground line-through" : "text-foreground"}`}>{task.title}</Link>
                   <div className="mt-1 flex min-w-0 items-center gap-1.5" aria-label={progress ? `Progress ${progress.percentage}%, ${progress.completed} of ${progress.total} subtasks complete` : "Progress not tracked"}>
-                    <TaskProgressBar value={progress?.percentage ?? null} className={progress ? "h-1 w-10" : "text-[9px]"} />
-                    {progress && <span className="truncate text-[9px] text-muted-foreground">{progress.completed}/{progress.total} subtasks · {progress.percentage}%</span>}
+                    <TaskProgressBar value={progress?.percentage ?? null} className={progress ? "h-1 w-10" : "text-xs"} />
+                    {progress && <span className="truncate text-xs text-muted-foreground">{progress.completed}/{progress.total} subtasks · {progress.percentage}%</span>}
                   </div>
                 </div>
-                <span className="hidden min-w-0 truncate text-[10px] leading-none text-muted-foreground sm:block" title={task.projectName ?? undefined}>{task.projectName ?? "—"}</span>
-                <span className={`justify-self-start rounded-full px-1.5 py-1 text-[10px] leading-none font-medium ${statusTone[task.status]}`}>{taskStatusLabels[task.status]}</span>
-                <span className={`justify-self-end whitespace-nowrap text-[10px] leading-none tabular-nums text-muted-foreground sm:justify-self-start ${task.dueDate && task.dueDate < todayKey() && !done ? "font-semibold text-destructive" : ""}`}>{task.dueDate ? dueLabel(task).replace("Due ", "") : "—"}</span>
-                <span className="hidden size-[18px] items-center justify-center rounded-full bg-primary/15 text-[7px] leading-none font-semibold text-primary sm:flex" title={task.assignedUserName ?? "Unassigned"} aria-label={`Assigned to ${task.assignedUserName ?? "nobody"}`}>{task.assignedUserName ? initials(task.assignedUserName) : "—"}</span>
+                <span className="hidden min-w-0 truncate text-xs leading-none text-muted-foreground sm:block" title={task.projectName ?? undefined}>{task.projectName ?? "—"}</span>
+                <span className={`justify-self-start rounded-full px-1.5 py-1 text-xs leading-none font-medium ${statusTone[task.status]}`}>{taskStatusLabels[task.status]}</span>
+                <span className={`justify-self-end whitespace-nowrap text-xs leading-none tabular-nums text-muted-foreground sm:justify-self-start ${task.dueDate && task.dueDate < todayKey() && !done ? "font-semibold text-destructive" : ""}`}>{task.dueDate ? dueLabel(task).replace("Due ", "") : "—"}</span>
+                <span className="hidden size-[18px] items-center justify-center rounded-full bg-primary/15 text-xs leading-none font-semibold text-primary sm:flex" title={task.assignedUserName ?? "Unassigned"} aria-label={`Assigned to ${task.assignedUserName ?? "nobody"}`}>{task.assignedUserName ? initials(task.assignedUserName) : "—"}</span>
                 <span className="hidden items-center justify-end gap-1 sm:flex">
-                  <span className={`rounded border px-1 py-0.5 text-[7px] leading-none font-medium ${priorityTone[task.priority]}`}>{taskPriorityLabels[task.priority]}</span>
+                  <span className={`rounded border px-1 py-0.5 text-xs leading-none font-medium ${priorityTone[task.priority]}`}>{taskPriorityLabels[task.priority]}</span>
                   <Link to="/work" aria-label={`More actions for ${task.title}`} className="inline-flex size-5 items-center justify-center rounded text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
                     <MoreHorizontal className="size-3" aria-hidden="true" />
                   </Link>
@@ -122,11 +122,11 @@ function MyTasks() {
         <div className="flex min-h-24 flex-col items-center justify-center px-4 text-center">
           <ListTodo className="size-5 text-muted-foreground" aria-hidden="true" />
           <p className="mt-2 text-xs font-medium">{tasks.length ? `No ${filterLabel(filter).toLocaleLowerCase()} tasks` : "No tasks yet"}</p>
-          <p className="mt-1 text-[10px] text-muted-foreground">{tasks.length ? "Choose another status to see more tasks." : "Tasks created in My Work will show up here."}</p>
-          <Link to="/work" className="mt-2 text-[10px] font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">Go to My Work</Link>
+          <p className="mt-1 text-xs text-muted-foreground">{tasks.length ? "Choose another status to see more tasks." : "Tasks created in My Work will show up here."}</p>
+          <Link to="/work" className="mt-2 text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">Go to My Work</Link>
         </div>
       )}
-      {sorted.length > shown.length && <div className="border-t border-border px-3 py-1.5 text-right"><Link to="/work" className="text-[9px] font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">+{sorted.length - shown.length} more tasks</Link></div>}
+      {sorted.length > shown.length && <div className="border-t border-border px-3 py-1.5 text-right"><Link to="/work" className="text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">+{sorted.length - shown.length} more tasks</Link></div>}
     </section>
   )
 }

@@ -18,7 +18,7 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
       <div className="space-y-1.5">
         <Label
           htmlFor={id}
-          className="text-[13px] font-medium text-[#D4D4D8]"
+          className="text-sm font-medium text-[#D4D4D8]"
         >
           {label}
         </Label>
@@ -36,7 +36,7 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
             aria-invalid={Boolean(error)}
             aria-describedby={error ? `${id}-error` : undefined}
             className={cn(
-              "h-11 border-[#1E1E22] bg-[#101014] text-[14px] text-[#F4F4F6]",
+              "h-11 border-[#1E1E22] bg-[#101014] text-sm text-[#F4F4F6]",
               "placeholder:text-[#6B6B74]",
               "transition-colors duration-150",
               "focus-visible:border-[#6366F1] focus-visible:ring-2 focus-visible:ring-[#6366F1]/30",
@@ -59,7 +59,7 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
         </div>
 
         {error && (
-          <p id={`${id}-error`} className="text-[12.5px] text-[#F87171]">
+          <p id={`${id}-error`} className="text-xs text-[#F87171]">
             {error}
           </p>
         )}

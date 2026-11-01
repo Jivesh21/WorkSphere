@@ -71,12 +71,12 @@ function TaskToolbar({
           >
             <ListFilter className="size-3.5" aria-hidden="true" />
             Filters
-            {(priorityFilter !== "All" || overdueOnly) && <span className="rounded bg-primary px-1.5 py-0.5 text-[9px] text-primary-foreground">{Number(priorityFilter !== "All") + Number(overdueOnly)}</span>}
+            {(priorityFilter !== "All" || overdueOnly) && <span className="rounded bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">{Number(priorityFilter !== "All") + Number(overdueOnly)}</span>}
           </button>
           <AnimatePresence>
             {showFilters && (
               <m.div {...dropdownMotion} className="absolute right-0 top-10 z-20 w-48 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg">
-                <p className="px-2.5 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Priority</p>
+                <p className="px-2.5 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Priority</p>
                 {priorityFilters.map((priority) => (
                   <button key={priority} type="button" onClick={() => onPriorityChange(priority)} className={`flex w-full items-center justify-between rounded-md px-2.5 py-2 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring ${priorityFilter === priority ? "bg-accent font-medium text-accent-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
                     {priority === "All" ? "All priorities" : taskPriorityLabels[priority]}
@@ -102,7 +102,7 @@ function TaskToolbar({
           <AnimatePresence>
             {showSort && (
               <m.div {...dropdownMotion} className="absolute right-0 top-10 z-20 w-44 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg">
-                <p className="px-2.5 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Sort by</p>
+                <p className="px-2.5 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sort by</p>
                 {sortOptions.map((option) => (
                   <button key={option} type="button" onClick={() => onSortChange(option)} className={`flex w-full items-center justify-between rounded-md px-2.5 py-2 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring ${sortOption === option ? "bg-accent font-medium text-accent-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
                     {option}

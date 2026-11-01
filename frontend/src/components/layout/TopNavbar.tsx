@@ -211,22 +211,36 @@ function TopNavbar() {
                 {mobileNavigation.map(({ label, href, icon: Icon }) => {
                   const active = location.pathname === href
                   return (
-                    <Link key={href} to={href} onClick={() => setMobileNavOpen(false)} aria-current={active ? "page" : undefined} className={`flex h-9 items-center gap-2.5 rounded-md px-2.5 text-xs font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring ${active ? "bg-accent text-accent-foreground" : "text-foreground"}`}>
+                    <Link key={href} to={href} onClick={() => setMobileNavOpen(false)} aria-current={active ? "page" : undefined} className={`flex h-9 items-center gap-2.5 rounded-md px-2.5 text-sm font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring ${active ? "bg-accent text-accent-foreground" : "text-foreground"}`}>
                       <Icon className="size-4 text-muted-foreground" aria-hidden="true" />{label}
                     </Link>
                   )
                 })}
+                {projects.length > 0 && (
+                  <section className="mt-1 border-t border-border pt-1.5" aria-label="Your projects">
+                    <div className="mb-1 flex items-center justify-between px-2.5">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Your projects</p>
+                      <Link to="/projects" onClick={() => setMobileNavOpen(false)} aria-label="Add a project" className="rounded px-1 text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">+</Link>
+                    </div>
+                    {projects.slice(0, 6).map((project) => (
+                      <Link key={project.id} to="/projects" onClick={() => setMobileNavOpen(false)} aria-label={`${project.name}, projects`} className="flex h-9 min-w-0 items-center gap-2.5 rounded-md px-2.5 text-sm font-medium text-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">
+                        <FolderKanban className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                        <span className="truncate">{project.name}</span>
+                      </Link>
+                    ))}
+                  </section>
+                )}
               </m.nav>
             )}
           </AnimatePresence>
         </div>
-        <span className="hidden truncate text-xs text-muted-foreground sm:block">
+        <span className="hidden truncate text-sm text-muted-foreground sm:block">
           WorkSphere Workspace
         </span>
 
         <ChevronRight className="hidden size-4 text-muted-foreground/50 sm:block" />
 
-        <span className="truncate text-xs font-medium text-foreground">
+        <span className="truncate text-sm font-medium text-foreground">
           {currentPage}
         </span>
       </div>
@@ -260,13 +274,13 @@ function TopNavbar() {
                     <div className="max-h-72 overflow-y-auto" aria-label="Workspace search results">
                       {globalSearchResults.map((result) => (
                         <button key={result.id} type="button" onClick={result.open} className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">
-                          <span className="w-12 shrink-0 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">{result.kind}</span>
-                          <span className="min-w-0 flex-1"><span className="block truncate text-xs font-medium">{result.title}</span><span className="mt-0.5 block truncate text-[10px] text-muted-foreground">{result.detail}</span></span>
+                          <span className="w-12 shrink-0 text-xs font-medium uppercase tracking-wide text-muted-foreground">{result.kind}</span>
+                          <span className="min-w-0 flex-1"><span className="block truncate text-xs font-medium">{result.title}</span><span className="mt-0.5 block truncate text-xs text-muted-foreground">{result.detail}</span></span>
                         </button>
                       ))}
                     </div>
                   ) : <p className="px-2.5 py-3 text-xs text-muted-foreground">No tasks, projects, or issues match “{globalSearch.trim()}”.</p>
-                ) : <p className="px-2.5 py-2 text-[10px] text-muted-foreground">Search data available in this session.</p>}
+                ) : <p className="px-2.5 py-2 text-xs text-muted-foreground">Search data available in this session.</p>}
               </m.div>
             )}
           </AnimatePresence>
@@ -369,7 +383,7 @@ function TopNavbar() {
 
         <div className="relative" ref={accountMenuRef}>
           <Button type="button" variant="ghost" size="icon-sm" aria-label="Account menu" aria-expanded={accountMenuOpen} aria-controls="account-menu" onClick={() => setAccountMenuOpen((open) => !open)} className="overflow-hidden rounded-full border border-border">
-            {avatarPreview ? <img src={avatarPreview} alt="" className="size-full object-cover" /> : <span className="flex size-full items-center justify-center bg-muted text-[11px] font-semibold">{user?.name ? initials(user.name) : <UserRound className="size-4" />}</span>}
+            {avatarPreview ? <img src={avatarPreview} alt="" className="size-full object-cover" /> : <span className="flex size-full items-center justify-center bg-muted text-xs font-semibold">{user?.name ? initials(user.name) : <UserRound className="size-4" />}</span>}
           </Button>
           <AnimatePresence>
             {accountMenuOpen && (

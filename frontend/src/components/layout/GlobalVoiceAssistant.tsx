@@ -175,7 +175,7 @@ function GlobalVoiceAssistant() {
           <header className="flex items-center justify-between border-b border-border px-4 py-3">
             <div>
               <h2 id="global-voice-title" className="text-sm font-semibold">Workspace voice assistant</h2>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">One command at a time · no wake word</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">One command at a time · no wake word</p>
             </div>
             <button type="button" onClick={closePanel} aria-label="Close voice assistant" className="flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
               <X className="size-4" aria-hidden="true" />
@@ -188,8 +188,8 @@ function GlobalVoiceAssistant() {
               {state === "error" && <span aria-hidden="true" className="mt-1 size-2 shrink-0 rounded-full bg-destructive" />}
               <span>{message}</span>
             </p>
-            {transcript && <p className="rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-foreground"><span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">Recognized request</span>{transcript}</p>}
-            <p className="text-[10px] leading-4 text-muted-foreground">Try “Open My Work”, “Show my overdue tasks”, “Show my high-priority tasks”, “Show completed tasks”, or “Go to Teams”.</p>
+            {transcript && <p className="rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-foreground"><span className="mb-0.5 block text-xs font-medium text-muted-foreground">Recognized request</span>{transcript}</p>}
+            <p className="text-xs leading-4 text-muted-foreground">Try “Open My Work”, “Show my overdue tasks”, “Show my high-priority tasks”, “Show completed tasks”, or “Go to Teams”.</p>
             <button
               type="button"
               onClick={state === "listening" ? stopListening : startListening}

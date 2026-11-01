@@ -269,7 +269,7 @@ function TaskFormDialog({
                     <VoiceVisualizer isListening={isListening} hasError={Boolean(voiceError)} />
                     <div className="min-w-0">
                     <h3 id="voice-task-heading" className="text-xs font-semibold">Voice to task</h3>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground">Browser speech recognition · client-side draft suggestions only</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">Browser speech recognition · client-side draft suggestions only</p>
                     </div>
                   </div>
                   <button type="button" onClick={isListening ? stopVoiceCapture : startVoiceCapture} aria-pressed={isListening} className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${voiceError ? "border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/15" : "border-primary/25 bg-primary/10 text-primary hover:bg-primary/15"}`}>
@@ -278,20 +278,20 @@ function TaskFormDialog({
                   </button>
                 </div>
 
-                <p role="status" aria-live="polite" className={`mt-2 flex items-center gap-1.5 text-[10px] font-medium ${voiceError ? "text-destructive" : isListening ? "text-primary" : "text-muted-foreground"}`}>
+                <p role="status" aria-live="polite" className={`mt-2 flex items-center gap-1.5 text-xs font-medium ${voiceError ? "text-destructive" : isListening ? "text-primary" : "text-muted-foreground"}`}>
                   {isListening && <LoaderCircle className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" />}
                   {voiceError ? "Voice capture needs attention" : isListening ? "Listening · speak your task, then pause" : "Ready when you are · speak a task or enter it below"}
                 </p>
 
-                {!recognitionConstructor && <p className="mt-2 text-[10px] text-muted-foreground">Speech recognition is not available in this browser. You can still create a task with the form below.</p>}
-                {voiceStatus && <p aria-live="polite" className="mt-1 text-[10px] text-muted-foreground">{voiceStatus}</p>}
-                {voiceError && <p role="alert" className="mt-2 text-[11px] text-destructive">{voiceError}</p>}
+                {!recognitionConstructor && <p className="mt-2 text-xs text-muted-foreground">Speech recognition is not available in this browser. You can still create a task with the form below.</p>}
+                {voiceStatus && <p aria-live="polite" className="mt-1 text-xs text-muted-foreground">{voiceStatus}</p>}
+                {voiceError && <p role="alert" className="mt-2 text-xs text-destructive">{voiceError}</p>}
 
                 {(voiceTranscript || isListening) && (
                   <div className="mt-2.5">
-                    <label htmlFor="voice-task-transcript" className="mb-1 block text-[10px] font-medium">Recognized transcript <span className="font-normal text-muted-foreground">(editable)</span></label>
+                    <label htmlFor="voice-task-transcript" className="mb-1 block text-xs font-medium">Recognized transcript <span className="font-normal text-muted-foreground">(editable)</span></label>
                     <textarea id="voice-task-transcript" value={voiceTranscript} onChange={(event) => updateVoiceTranscript(event.target.value)} rows={2} maxLength={1000} placeholder="Your recognized words will appear here" className="w-full resize-y rounded-md border border-input bg-background px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30" />
-                    <button type="button" disabled={!voiceTranscript.trim() || isListening} onClick={reviewVoiceTranscript} className="mt-2 inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-[11px] font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
+                    <button type="button" disabled={!voiceTranscript.trim() || isListening} onClick={reviewVoiceTranscript} className="mt-2 inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
                       <Sparkles className="size-3.5 text-primary" aria-hidden="true" />Review draft suggestion
                     </button>
                   </div>
@@ -299,18 +299,18 @@ function TaskFormDialog({
 
                 {voiceDraft && (
                   <div className="mt-3 rounded-md border border-primary/20 bg-primary/[0.04] p-2.5">
-                    <p className="text-[10px] font-semibold text-primary">Draft suggestion <span className="font-normal text-muted-foreground">· simple browser-side extraction, not AI</span></p>
-                    <dl className="mt-2 grid gap-x-4 gap-y-1.5 text-[11px] sm:grid-cols-2">
+                    <p className="text-xs font-semibold text-primary">Draft suggestion <span className="font-normal text-muted-foreground">· simple browser-side extraction, not AI</span></p>
+                    <dl className="mt-2 grid gap-x-4 gap-y-1.5 text-xs sm:grid-cols-2">
                       <DraftValue label="Title" value={voiceDraft.title} />
                       {voiceDraft.priority && <DraftValue label="Priority" value={taskPriorityLabels[voiceDraft.priority]} />}
                       {voiceDraft.dueDate && <DraftValue label="Due date" value={formatDate(voiceDraft.dueDate)} />}
                       {voiceDraft.assignee && <DraftValue label="Assignee" value={voiceDraft.assignee.name} />}
                       {voiceDraft.project && <DraftValue label="Project" value={voiceDraft.project.name} />}
                     </dl>
-                    {voiceDraft.notes.length > 0 && <ul className="mt-2 list-inside list-disc space-y-0.5 text-[10px] text-muted-foreground">{voiceDraft.notes.map((note) => <li key={note}>{note}</li>)}</ul>}
-                    <p className="mt-2 text-[10px] text-muted-foreground">The transcript stays available above. You can edit every task field in the form before creating it.</p>
-                    <button type="button" onClick={applyVoiceDraft} className="mt-2 inline-flex h-8 items-center rounded-md bg-primary px-2.5 text-[11px] font-medium text-primary-foreground outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring">Use draft in form</button>
-                    {voiceDraftApplied && <p role="status" className="mt-2 text-[10px] font-medium text-primary">Draft fields copied into the form. Review them and choose Create task to confirm.</p>}
+                    {voiceDraft.notes.length > 0 && <ul className="mt-2 list-inside list-disc space-y-0.5 text-xs text-muted-foreground">{voiceDraft.notes.map((note) => <li key={note}>{note}</li>)}</ul>}
+                    <p className="mt-2 text-xs text-muted-foreground">The transcript stays available above. You can edit every task field in the form before creating it.</p>
+                    <button type="button" onClick={applyVoiceDraft} className="mt-2 inline-flex h-8 items-center rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring">Use draft in form</button>
+                    {voiceDraftApplied && <p role="status" className="mt-2 text-xs font-medium text-primary">Draft fields copied into the form. Review them and choose Create task to confirm.</p>}
                   </div>
                 )}
               </section>
@@ -383,7 +383,7 @@ function TaskFormDialog({
                   <option value="">{availableProjects.length ? "No project" : "No projects available"}</option>
                   {availableProjects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
                 </select>
-                <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                   {projects.length ? "Choose from available projects." : "Project records are not connected yet; tasks can remain unlinked."}
                 </p>
               </Field>
@@ -399,19 +399,19 @@ function TaskFormDialog({
                     assignedUserName: member?.name ?? null,
                   }))}
                 />
-                <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                   {availableMembers.length ? "Only members available to this account can be selected." : "No member directory is connected; choose Unassigned."}
                 </p>
                 {values.assignedUserId === null ? (
-                  <p className="mt-1.5 rounded border border-border bg-muted/20 px-2.5 py-2 text-[10px] leading-relaxed text-muted-foreground">Select an available assignee to view workload from this session. Team-wide workload is unavailable.</p>
+                  <p className="mt-1.5 rounded border border-border bg-muted/20 px-2.5 py-2 text-xs leading-relaxed text-muted-foreground">Select an available assignee to view workload from this session. Team-wide workload is unavailable.</p>
                 ) : assigneeIsAvailable ? (
                   <div className="mt-1.5 rounded border border-border bg-muted/20 px-2.5 py-2">
-                    <p className="text-[10px] font-medium">Session task workload for {values.assignedUserName}</p>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground">{selectedAssigneeTasks.length} assigned · {selectedAssigneeOpen} open · {selectedAssigneeOverdue} overdue</p>
-                    <p className="mt-1 text-[9px] text-muted-foreground">Counts use only tasks visible in this signed-in account's session.</p>
+                    <p className="text-xs font-medium">Session task workload for {values.assignedUserName}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{selectedAssigneeTasks.length} assigned · {selectedAssigneeOpen} open · {selectedAssigneeOverdue} overdue</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Counts use only tasks visible in this signed-in account's session.</p>
                   </div>
                 ) : (
-                  <p className="mt-1.5 rounded border border-dashed border-border px-2.5 py-2 text-[10px] leading-relaxed text-muted-foreground">This assignee is not in the available member directory. Their workload cannot be loaded.</p>
+                  <p className="mt-1.5 rounded border border-dashed border-border px-2.5 py-2 text-xs leading-relaxed text-muted-foreground">This assignee is not in the available member directory. Their workload cannot be loaded.</p>
                 )}
               </Field>
             </div>
@@ -469,7 +469,7 @@ function Field({ label, htmlFor, optional, children }: { label: string; htmlFor:
 }
 
 function DraftValue({ label, value }: { label: string; value: string }) {
-  return <div className="min-w-0"><dt className="text-[9px] uppercase tracking-wide text-muted-foreground">{label}</dt><dd className="truncate font-medium">{value}</dd></div>
+  return <div className="min-w-0"><dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt><dd className="truncate font-medium">{value}</dd></div>
 }
 
 function formatDate(value: string) {
