@@ -8,7 +8,7 @@ import java.time.Instant;
 @Table(
         name = "workspace_members",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"workspace_id", "user_id"})
+                @UniqueConstraint(name = "uk_workspace_members_workspace_user", columnNames = {"workspace_id", "user_id"})
         }
 )
 public class WorkspaceMember {

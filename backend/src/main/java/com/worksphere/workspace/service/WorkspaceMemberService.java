@@ -1,7 +1,9 @@
 package com.worksphere.workspace.service;
 
+import com.worksphere.common.exception.BadRequestException;
 import com.worksphere.common.exception.ConflictException;
 import com.worksphere.common.exception.ResourceNotFoundException;
+import com.worksphere.security.CurrentUserService;
 import com.worksphere.user.entity.User;
 import com.worksphere.user.repository.UserRepository;
 import com.worksphere.workspace.dto.AddMemberRequest;
@@ -14,6 +16,7 @@ import com.worksphere.workspace.repository.WorkspaceMemberRepository;
 import com.worksphere.workspace.repository.WorkspaceRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,49 +26,46 @@ public class WorkspaceMemberService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final UserRepository userRepository;
     private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceAuthorizationService workspaceAuthorizationService;
+    private final CurrentUserService currentUserService;
 
     public WorkspaceMemberService(
             WorkspaceMemberRepository workspaceMemberRepository,
             UserRepository userRepository,
-            WorkspaceRepository workspaceRepository
+            WorkspaceRepository workspaceRepository,
+            WorkspaceAuthorizationService workspaceAuthorizationService,
+            CurrentUserService currentUserService
     ) {
         this.workspaceMemberRepository = workspaceMemberRepository;
         this.userRepository = userRepository;
         this.workspaceRepository = workspaceRepository;
+        this.workspaceAuthorizationService = workspaceAuthorizationService;
+        this.currentUserService = currentUserService;
     }
 
-    public List<WorkspaceMemberResponse> getMembers(Long workspaceId) {
+    @Transactional(readOnly = true)
+    public List<WorkspaceMemberResponse> getMembers(Long workspaceId, Authentication authentication) {
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        workspaceAuthorizationService.verifyWorkspaceAccess(workspaceId, currentUserId);
 
         List<WorkspaceMember> members =
                 workspaceMemberRepository.findByWorkspaceId(workspaceId);
 
         return members.stream()
-                .map(member -> new WorkspaceMemberResponse(
-                        member.getId(),
-                        member.getUser().getId(),
-                        member.getUser().getName(),
-                        member.getUser().getEmail(),
-                        member.getRole(),
-                        member.getJoinedAt()
-                ))
+                .map(this::toResponse)
                 .toList();
     }
 
+    @Transactional
     public WorkspaceMemberResponse addMember(
             Long workspaceId,
             AddMemberRequest request,
             Authentication authentication
     ) {
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        Workspace workspace = workspaceAuthorizationService.requireMemberManagementPermission(workspaceId, currentUserId);
 
-        Long currentUserId = getCurrentUserId(authentication);
-
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Workspace not found"));
-
-        checkMemberManagementPermission(workspaceId, currentUserId);
-
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.getEmail().trim().toLowerCase())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
 
@@ -86,30 +86,22 @@ public class WorkspaceMemberService {
         WorkspaceMember savedMember =
                 workspaceMemberRepository.save(member);
 
-        return new WorkspaceMemberResponse(
-                savedMember.getId(),
-                savedMember.getUser().getId(),
-                savedMember.getUser().getName(),
-                savedMember.getUser().getEmail(),
-                savedMember.getRole(),
-                savedMember.getJoinedAt()
-        );
+        return toResponse(savedMember);
     }
 
+    @Transactional
     public WorkspaceMemberResponse changeMemberRole(
             Long workspaceId,
             Long memberId,
             ChangeMemberRoleRequest request,
             Authentication authentication
     ) {
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        workspaceAuthorizationService.requireMemberManagementPermission(workspaceId, currentUserId);
 
-        Long currentUserId = getCurrentUserId(authentication);
-
-        workspaceRepository.findById(workspaceId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Workspace not found"));
-
-        checkMemberManagementPermission(workspaceId, currentUserId);
+        if (request.getRole() == WorkspaceRole.OWNER) {
+            throw new BadRequestException("Cannot assign OWNER role");
+        }
 
         WorkspaceMember member =
                 workspaceMemberRepository.findById(memberId)
@@ -135,29 +127,17 @@ public class WorkspaceMemberService {
         WorkspaceMember updatedMember =
                 workspaceMemberRepository.save(member);
 
-        return new WorkspaceMemberResponse(
-                updatedMember.getId(),
-                updatedMember.getUser().getId(),
-                updatedMember.getUser().getName(),
-                updatedMember.getUser().getEmail(),
-                updatedMember.getRole(),
-                updatedMember.getJoinedAt()
-        );
+        return toResponse(updatedMember);
     }
 
+    @Transactional
     public void removeMember(
             Long workspaceId,
             Long memberId,
             Authentication authentication
     ) {
-
-        Long currentUserId = getCurrentUserId(authentication);
-
-        workspaceRepository.findById(workspaceId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Workspace not found"));
-
-        checkMemberManagementPermission(workspaceId, currentUserId);
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        workspaceAuthorizationService.requireMemberManagementPermission(workspaceId, currentUserId);
 
         WorkspaceMember member =
                 workspaceMemberRepository.findById(memberId)
@@ -181,34 +161,14 @@ public class WorkspaceMemberService {
         workspaceMemberRepository.delete(member);
     }
 
-    private Long getCurrentUserId(Authentication authentication) {
-
-        return ((com.worksphere.security.CustomUserDetails)
-                authentication.getPrincipal()).getUserId();
-    }
-
-    private void checkMemberManagementPermission(
-            Long workspaceId,
-            Long currentUserId
-    ) {
-
-        WorkspaceMember member =
-                workspaceMemberRepository
-                        .findByWorkspaceIdAndUserId(
-                                workspaceId,
-                                currentUserId
-                        )
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "You are not a member of this workspace"
-                                ));
-
-        if (member.getRole() != WorkspaceRole.OWNER
-                && member.getRole() != WorkspaceRole.ADMIN) {
-
-            throw new com.worksphere.common.exception.UnauthorizedException(
-                    "You do not have permission to manage workspace members"
-            );
-        }
+    private WorkspaceMemberResponse toResponse(WorkspaceMember member) {
+        return new WorkspaceMemberResponse(
+                member.getId(),
+                member.getUser().getId(),
+                member.getUser().getName(),
+                member.getUser().getEmail(),
+                member.getRole(),
+                member.getJoinedAt()
+        );
     }
 }
