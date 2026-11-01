@@ -25,10 +25,11 @@ public class WorkspaceMemberController {
 
     @GetMapping
     public ResponseEntity<List<WorkspaceMemberResponse>> getMembers(
-            @PathVariable Long workspaceId
+            @PathVariable Long workspaceId,
+            Authentication authentication
     ) {
         return ResponseEntity.ok(
-                workspaceMemberService.getMembers(workspaceId)
+                workspaceMemberService.getMembers(workspaceId, authentication)
         );
     }
 
