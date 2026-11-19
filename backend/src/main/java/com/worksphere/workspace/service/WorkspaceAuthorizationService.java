@@ -58,4 +58,15 @@ public class WorkspaceAuthorizationService {
 
         return workspace;
     }
+
+    public Workspace requireWorkspaceOwner(Long workspaceId, Long userId) {
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+
+        if (workspace.getOwner() == null || !workspace.getOwner().getId().equals(userId)) {
+            throw new UnauthorizedException("Only the workspace owner can perform this action");
+        }
+
+        return workspace;
+    }
 }

@@ -34,7 +34,7 @@ public class TaskService {
                 .description(request.getDescription())
                 .status(request.getStatus())
                 .priority(request.getPriority())
-                .dueDate(request.getDueDate().atStartOfDay())
+                .dueDate(request.getDueDate() != null ? request.getDueDate().atStartOfDay() : null)
                 .projectId(request.getProjectId())
                 .assignedUserId(request.getAssignedUserId())
                 .build();
@@ -125,7 +125,7 @@ public class TaskService {
         task.setDescription(request.getDescription());
         task.setStatus(request.getStatus());
         task.setPriority(request.getPriority());
-        task.setDueDate(request.getDueDate().atStartOfDay());
+        task.setDueDate(request.getDueDate() != null ? request.getDueDate().atStartOfDay() : task.getDueDate());
         task.setProjectId(request.getProjectId());
         task.setAssignedUserId(request.getAssignedUserId());
 

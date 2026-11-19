@@ -10,6 +10,10 @@ public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember
 
     List<WorkspaceMember> findByWorkspaceId(Long workspaceId);
 
+    void deleteByWorkspaceId(Long workspaceId);
+
+    List<WorkspaceMember> findByUserId(Long userId);
+
     boolean existsByWorkspaceIdAndUserId(Long workspaceId, Long userId);
 
     Optional<WorkspaceMember> findByWorkspaceIdAndUserId(
