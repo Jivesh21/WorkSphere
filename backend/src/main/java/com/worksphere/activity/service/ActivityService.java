@@ -7,6 +7,8 @@ import com.worksphere.activity.entity.ActivityType;
 import com.worksphere.activity.repository.ActivityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class ActivityService {
     private final ActivityRepository activityRepository;
 
     // Create Activity
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ActivityResponse createActivity(ActivityRequest request) {
 
         if (request.getActorUserId() == null) {
@@ -120,6 +123,7 @@ public class ActivityService {
 
         activityRepository.deleteById(id);
     }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createTaskActivity(
             Long actorUserId,
             String description,

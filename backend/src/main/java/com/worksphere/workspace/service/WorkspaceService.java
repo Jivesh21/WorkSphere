@@ -1,10 +1,13 @@
 package com.worksphere.workspace.service;
 
+import com.worksphere.common.exception.ConflictException;
 import com.worksphere.common.exception.ResourceNotFoundException;
 import com.worksphere.security.CurrentUserService;
 import com.worksphere.user.entity.User;
 import com.worksphere.user.repository.UserRepository;
 import com.worksphere.workspace.dto.CreateWorkspaceRequest;
+import com.worksphere.workspace.dto.TransferOwnershipRequest;
+import com.worksphere.workspace.dto.UpdateWorkspaceRequest;
 import com.worksphere.workspace.dto.WorkspaceResponse;
 import com.worksphere.workspace.entity.Workspace;
 import com.worksphere.workspace.entity.WorkspaceMember;
@@ -36,6 +39,20 @@ public class WorkspaceService {
         this.userRepository = userRepository;
         this.workspaceAuthorizationService = workspaceAuthorizationService;
         this.currentUserService = currentUserService;
+    }
+
+    /**
+     * Retrieves all workspaces the current user is a member of.
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<WorkspaceResponse> getUserWorkspaces(Authentication authentication) {
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        java.util.List<WorkspaceMember> memberships = workspaceMemberRepository.findByUserId(currentUserId);
+        return memberships.stream()
+                .map(WorkspaceMember::getWorkspace)
+                .distinct()
+                .map(this::toResponse)
+                .toList();
     }
 
     /**
@@ -75,6 +92,80 @@ public class WorkspaceService {
         ownerMember.setRole(WorkspaceRole.OWNER);
 
         workspaceMemberRepository.save(ownerMember);
+
+        return toResponse(savedWorkspace);
+    }
+
+    /**
+     * Updates workspace metadata (name, description).
+     * Caller must have OWNER or ADMIN role in the workspace.
+     */
+    @Transactional
+    public WorkspaceResponse updateWorkspace(
+            Long workspaceId,
+            UpdateWorkspaceRequest request,
+            Authentication authentication
+    ) {
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        Workspace workspace = workspaceAuthorizationService.requireMemberManagementPermission(workspaceId, currentUserId);
+
+        workspace.setName(request.getName().trim());
+        workspace.setDescription(request.getDescription());
+
+        Workspace saved = workspaceRepository.save(workspace);
+        return toResponse(saved);
+    }
+
+    /**
+     * Deletes a workspace and cleans up all member records.
+     * Only the workspace OWNER can delete the workspace.
+     */
+    @Transactional
+    public void deleteWorkspace(Long workspaceId, Authentication authentication) {
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        Workspace workspace = workspaceAuthorizationService.requireWorkspaceOwner(workspaceId, currentUserId);
+
+        workspaceMemberRepository.deleteByWorkspaceId(workspaceId);
+        workspaceRepository.delete(workspace);
+    }
+
+    /**
+     * Transfers ownership of the workspace to another existing workspace member.
+     * Only the current OWNER can transfer ownership.
+     * The target member becomes the new OWNER, and the previous owner is assigned ADMIN.
+     */
+    @Transactional
+    public WorkspaceResponse transferOwnership(
+            Long workspaceId,
+            TransferOwnershipRequest request,
+            Authentication authentication
+    ) {
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        Workspace workspace = workspaceAuthorizationService.requireWorkspaceOwner(workspaceId, currentUserId);
+
+        WorkspaceMember currentOwnerMember = workspaceMemberRepository
+                .findByWorkspaceIdAndUserId(workspaceId, currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Current owner membership not found"));
+
+        WorkspaceMember targetMember = workspaceMemberRepository.findById(request.getNewOwnerMemberId())
+                .orElseThrow(() -> new ResourceNotFoundException("Target member not found"));
+
+        if (!targetMember.getWorkspace().getId().equals(workspaceId)) {
+            throw new ResourceNotFoundException("Target member does not belong to this workspace");
+        }
+
+        if (targetMember.getId().equals(currentOwnerMember.getId())) {
+            throw new ConflictException("User is already the workspace owner");
+        }
+
+        // Atomically transfer ownership
+        workspace.setOwner(targetMember.getUser());
+        targetMember.setRole(WorkspaceRole.OWNER);
+        currentOwnerMember.setRole(WorkspaceRole.ADMIN);
+
+        Workspace savedWorkspace = workspaceRepository.save(workspace);
+        workspaceMemberRepository.save(targetMember);
+        workspaceMemberRepository.save(currentOwnerMember);
 
         return toResponse(savedWorkspace);
     }

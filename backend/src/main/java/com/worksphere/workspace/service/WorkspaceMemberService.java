@@ -161,6 +161,34 @@ public class WorkspaceMemberService {
         workspaceMemberRepository.delete(member);
     }
 
+    /**
+     * Gets the authenticated user's own membership details in the workspace.
+     */
+    @Transactional(readOnly = true)
+    public WorkspaceMemberResponse getMyMembership(Long workspaceId, Authentication authentication) {
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        WorkspaceMember member = workspaceAuthorizationService.requireMembership(workspaceId, currentUserId);
+        return toResponse(member);
+    }
+
+    /**
+     * Allows a member to voluntarily leave the workspace.
+     * The workspace owner cannot leave without transferring ownership or deleting the workspace.
+     */
+    @Transactional
+    public void leaveWorkspace(Long workspaceId, Authentication authentication) {
+        Long currentUserId = currentUserService.getCurrentUserId(authentication);
+        WorkspaceMember member = workspaceAuthorizationService.requireMembership(workspaceId, currentUserId);
+
+        if (member.getRole() == WorkspaceRole.OWNER) {
+            throw new ConflictException(
+                    "Workspace owner cannot leave the workspace. Transfer ownership or delete the workspace instead."
+            );
+        }
+
+        workspaceMemberRepository.delete(member);
+    }
+
     private WorkspaceMemberResponse toResponse(WorkspaceMember member) {
         return new WorkspaceMemberResponse(
                 member.getId(),

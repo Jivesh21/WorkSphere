@@ -4,14 +4,20 @@ import com.worksphere.sprints.dto.SprintRequest;
 import com.worksphere.sprints.dto.SprintResponse;
 import com.worksphere.sprints.entity.SprintStatus;
 import com.worksphere.sprints.service.SprintService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/sprints")
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Sprints", description = "Sprint planning endpoints")
 public class SprintController {
 
     private final SprintService sprintService;
@@ -22,6 +28,8 @@ public class SprintController {
 
     // CREATE
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PROJECT_MANAGER') or hasRole('TEAM_LEAD')")
+    @Operation(summary = "Create sprint (Requires ADMIN, PROJECT_MANAGER, or TEAM_LEAD)")
     public ResponseEntity<SprintResponse> createSprint(
             @RequestBody SprintRequest request) {
 
@@ -35,6 +43,7 @@ public class SprintController {
 
     // GET ALL
     @GetMapping
+    @Operation(summary = "Get all sprints")
     public ResponseEntity<List<SprintResponse>> getAllSprints() {
 
         return ResponseEntity.ok(
@@ -44,6 +53,7 @@ public class SprintController {
 
     // GET BY ID
     @GetMapping("/{id}")
+    @Operation(summary = "Get sprint by ID")
     public ResponseEntity<SprintResponse> getSprintById(
             @PathVariable Long id) {
 
@@ -54,6 +64,7 @@ public class SprintController {
 
     // GET BY PROJECT
     @GetMapping("/project/{projectId}")
+    @Operation(summary = "Get sprints by project")
     public ResponseEntity<List<SprintResponse>> getSprintsByProject(
             @PathVariable Long projectId) {
 
@@ -64,6 +75,7 @@ public class SprintController {
 
     // GET BY STATUS
     @GetMapping("/status/{status}")
+    @Operation(summary = "Get sprints by status")
     public ResponseEntity<List<SprintResponse>> getSprintsByStatus(
             @PathVariable SprintStatus status) {
 
@@ -74,6 +86,8 @@ public class SprintController {
 
     // UPDATE
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PROJECT_MANAGER') or hasRole('TEAM_LEAD')")
+    @Operation(summary = "Update sprint (Requires ADMIN, PROJECT_MANAGER, or TEAM_LEAD)")
     public ResponseEntity<SprintResponse> updateSprint(
             @PathVariable Long id,
             @RequestBody SprintRequest request) {
@@ -85,6 +99,8 @@ public class SprintController {
 
     // DELETE
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PROJECT_MANAGER')")
+    @Operation(summary = "Delete sprint (Requires ADMIN or PROJECT_MANAGER)")
     public ResponseEntity<Void> deleteSprint(
             @PathVariable Long id) {
 

@@ -33,6 +33,25 @@ public class WorkspaceMemberController {
         );
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<WorkspaceMemberResponse> getMyMembership(
+            @PathVariable Long workspaceId,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(
+                workspaceMemberService.getMyMembership(workspaceId, authentication)
+        );
+    }
+
+    @PostMapping("/leave")
+    public ResponseEntity<Void> leaveWorkspace(
+            @PathVariable Long workspaceId,
+            Authentication authentication
+    ) {
+        workspaceMemberService.leaveWorkspace(workspaceId, authentication);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping
     public ResponseEntity<WorkspaceMemberResponse> addMember(
             @PathVariable Long workspaceId,

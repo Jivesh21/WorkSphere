@@ -19,6 +19,7 @@ public class ActivityController {
 
     // Create activity
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ActivityResponse> createActivity(
             @RequestBody ActivityRequest request) {
 
@@ -99,6 +100,7 @@ public class ActivityController {
 
     // Delete activity
     @DeleteMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteActivity(
             @PathVariable Long id) {
 
