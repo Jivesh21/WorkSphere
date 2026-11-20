@@ -9,6 +9,7 @@ import useTasks from "@/hooks/useTasks"
 import { staggerContainer, staggerItem } from "@/lib/motion"
 import { taskPriorityLabels, taskStatusLabels, type Task, type TaskStatusFilter } from "@/pages/MyWorkPage/types"
 import TaskProgressBar from "@/pages/MyWorkPage/components/TaskProgressBar"
+import { taskApi } from "@/services/workspaceApi"
 
 const taskFilters: TaskStatusFilter[] = ["All", "TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"]
 
@@ -42,7 +43,16 @@ function todayKey() {
 }
 
 function MyTasks() {
-  const { tasks, ownerKey } = useTasks()
+  const { tasks, ownerKey, accessToken, isDevelopmentPreview, user } = useTasks()
+  const [updateError, setUpdateError] = useState("")
+  async function toggleTask(task: Task) {
+    const status = task.status === "DONE" ? "TODO" : "DONE"
+    try {
+      if (accessToken && !isDevelopmentPreview) await taskApi.update(accessToken, task.id, { title: task.title, description: task.description, status, priority: task.priority, dueDate: task.dueDate || null, projectId: task.projectId, assignedUserId: task.assignedUserId, actorUserId: user?.id })
+      taskRepository.toggleCompletion(ownerKey, task.id)
+      setUpdateError("")
+    } catch (error) { setUpdateError(error instanceof Error ? error.message : "Could not update the task.") }
+  }
   const [filter, setFilter] = useState<TaskStatusFilter>("All")
   const counts = useMemo(() => ({
     All: tasks.length,
@@ -86,13 +96,15 @@ function MyTasks() {
         ))}
       </div>
       {shown.length ? (
+        <>
+        {updateError && <p role="alert" className="border-b border-destructive/20 px-3 py-2 text-xs text-destructive">{updateError}</p>}
         <m.ul initial="hidden" animate="visible" variants={staggerContainer}>
           {shown.map((task) => {
             const done = task.status === "DONE"
             const progress = getTaskProgress(task)
             return (
               <m.li key={task.id} variants={staggerItem} className="group flex min-w-0 items-center gap-2 border-b border-border/70 px-3 py-2 last:border-b-0 transition-colors hover:bg-muted/25 motion-reduce:transition-none">
-              <button type="button" onClick={() => taskRepository.toggleCompletion(ownerKey, task.id)} aria-label={`${done ? "Reopen" : "Complete"} ${task.title}`} aria-pressed={done} className={`inline-flex size-[15px] shrink-0 items-center justify-center rounded-full border outline-none focus-visible:ring-2 focus-visible:ring-ring ${done ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/60 text-transparent hover:border-primary hover:text-primary"}`}>
+              <button type="button" onClick={() => void toggleTask(task)} aria-label={`${done ? "Reopen" : "Complete"} ${task.title}`} aria-pressed={done} className={`inline-flex size-[15px] shrink-0 items-center justify-center rounded-full border outline-none focus-visible:ring-2 focus-visible:ring-ring ${done ? "border-emerald-500 bg-emerald-500 text-white" : "border-muted-foreground/60 text-transparent hover:border-primary hover:text-primary"}`}>
                 {done ? <Check className="size-2.5" aria-hidden="true" /> : <Circle className="size-2" aria-hidden="true" />}
               </button>
               <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-0.5 sm:grid-cols-[minmax(0,1fr)_68px_62px_42px_20px_42px]">
@@ -118,6 +130,7 @@ function MyTasks() {
             )
           })}
         </m.ul>
+        </>
       ) : (
         <div className="flex min-h-24 flex-col items-center justify-center px-4 text-center">
           <ListTodo className="size-5 text-muted-foreground" aria-hidden="true" />

@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
 
 import { IssuesContext } from "@/contexts/issues"
 import useAuth from "@/hooks/useAuth"
 import type { Issue, IssueFormValues, IssueStatus } from "@/pages/issues/types"
+import { issueApi, type IssueRecord } from "@/services/workspaceApi"
 
 function issuePrefix(project: string) {
   const words = project.trim().split(/\s+/).filter(Boolean)
@@ -27,20 +28,32 @@ function previewIssues(): Issue[] {
 }
 
 export function IssuesProvider({ children }: { children: ReactNode }) {
-  const { isDevelopmentPreview } = useAuth()
+  const { isDevelopmentPreview, accessToken, user } = useAuth()
   return (
-    <IssuesSession key={isDevelopmentPreview ? "preview" : "account"} preview={isDevelopmentPreview}>
+    <IssuesSession key={isDevelopmentPreview ? "preview" : `account-${user?.id ?? "none"}`} preview={isDevelopmentPreview} accessToken={accessToken} userId={user?.id}>
       {children}
     </IssuesSession>
   )
 }
 
-function IssuesSession({ children, preview }: { children: ReactNode; preview: boolean }) {
+function IssuesSession({ children, preview, accessToken, userId }: { children: ReactNode; preview: boolean; accessToken: string | null; userId?: number }) {
   const [issues, setIssues] = useState<Issue[]>(() =>
     import.meta.env.DEV && preview ? previewIssues() : [],
   )
 
-  const createIssue = useCallback((values: IssueFormValues) => {
+  useEffect(() => {
+    if (!accessToken || preview) return
+    let active = true
+    issueApi.list(accessToken).then((records) => { if (active) setIssues(records.map(toIssue)) }).catch(() => { if (active) setIssues([]) })
+    return () => { active = false }
+  }, [accessToken, preview])
+
+  const createIssue = useCallback(async (values: IssueFormValues) => {
+    if (accessToken && !preview) {
+      const saved = await issueApi.create(accessToken, issueInput(values, userId))
+      setIssues((current) => [toIssue(saved), ...current])
+      return
+    }
     setIssues((current) => {
       const prefix = issuePrefix(values.project)
       const highestNumber = current.reduce((highest, issue) => {
@@ -50,15 +63,29 @@ function IssuesSession({ children, preview }: { children: ReactNode; preview: bo
       const nextId = current.reduce((highest, issue) => Math.max(highest, issue.id), 0) + 1
       return [{ ...values, id: nextId, key: `${prefix}-${highestNumber + 1}` }, ...current]
     })
-  }, [])
+  }, [accessToken, preview, userId])
 
-  const updateIssue = useCallback((id: number, values: IssueFormValues) => {
+  const updateIssue = useCallback(async (id: number, values: IssueFormValues) => {
+    const existing = issues.find((issue) => issue.id === id)
+    if (!existing) return
+    if (accessToken && !preview) {
+      const saved = await issueApi.update(accessToken, id, issueInput(values, userId))
+      setIssues((current) => current.map((issue) => issue.id === id ? toIssue(saved) : issue))
+      return
+    }
     setIssues((current) => current.map((issue) => issue.id === id ? { ...issue, ...values } : issue))
-  }, [])
+  }, [accessToken, preview, userId, issues])
 
-  const updateIssueStatus = useCallback((id: number, status: IssueStatus) => {
+  const updateIssueStatus = useCallback(async (id: number, status: IssueStatus) => {
+    const existing = issues.find((issue) => issue.id === id)
+    if (!existing) return
+    if (accessToken && !preview) {
+      const saved = await issueApi.update(accessToken, id, issueInput({ ...existing, status }, userId))
+      setIssues((current) => current.map((issue) => issue.id === id ? toIssue(saved) : issue))
+      return
+    }
     setIssues((current) => current.map((issue) => issue.id === id ? { ...issue, status } : issue))
-  }, [])
+  }, [accessToken, preview, userId, issues])
 
   const value = useMemo(
     () => ({ issues, createIssue, updateIssue, updateIssueStatus }),
@@ -66,4 +93,16 @@ function IssuesSession({ children, preview }: { children: ReactNode; preview: bo
   )
 
   return <IssuesContext.Provider value={value}>{children}</IssuesContext.Provider>
+}
+
+function toIssue(record: IssueRecord): Issue {
+  const status = record.status === "IN_PROGRESS" ? "In progress" : record.status === "RESOLVED" ? "Resolved" : "Open"
+  const priority = record.priority === "URGENT" ? "Critical" : record.priority === "HIGH" ? "High" : record.priority === "LOW" ? "Low" : "Medium"
+  return { id: record.id, key: `ISS-${record.id}`, title: record.title, description: record.description ?? "", project: record.projectId ? `Project #${record.projectId}` : "", status, priority, assignee: record.assignedUserId ? `User #${record.assignedUserId}` : "", dueDate: "" }
+}
+
+function issueInput(values: IssueFormValues, actorUserId?: number) {
+  const status = values.status === "In progress" ? "IN_PROGRESS" : values.status === "Resolved" ? "RESOLVED" : "OPEN"
+  const priority = values.priority === "Critical" ? "URGENT" : values.priority.toUpperCase()
+  return { title: values.title, description: values.description, type: "BUG", status, priority, actorUserId }
 }

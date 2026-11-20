@@ -7,7 +7,7 @@ import { issuePriorities, issueStatuses, type Issue, type IssueFormValues, type 
 interface IssueFormDialogProps {
   issue?: Issue
   onClose: () => void
-  onSave: (values: IssueFormValues) => string | undefined
+  onSave: (values: IssueFormValues) => string | undefined | Promise<string | undefined>
 }
 
 function CreateIssueModal({ issue, onClose, onSave }: IssueFormDialogProps) {
@@ -22,6 +22,7 @@ function CreateIssueModal({ issue, onClose, onSave }: IssueFormDialogProps) {
   const [assignee, setAssignee] = useState(issue?.assignee ?? "")
   const [dueDate, setDueDate] = useState(issue?.dueDate ?? "")
   const [error, setError] = useState("")
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     titleInputRef.current?.focus()
@@ -32,7 +33,7 @@ function CreateIssueModal({ issue, onClose, onSave }: IssueFormDialogProps) {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [onClose])
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const trimmedTitle = title.trim()
     if (!trimmedTitle) {
@@ -41,7 +42,9 @@ function CreateIssueModal({ issue, onClose, onSave }: IssueFormDialogProps) {
       return
     }
 
-    const saveError = onSave({
+    setSaving(true)
+    let saveError: string | undefined
+    try { saveError = await onSave({
       title: trimmedTitle,
       description: description.trim(),
       project: project.trim(),
@@ -49,7 +52,8 @@ function CreateIssueModal({ issue, onClose, onSave }: IssueFormDialogProps) {
       status,
       assignee: assignee.trim(),
       dueDate,
-    })
+    }) } catch (saveFailure) { saveError = saveFailure instanceof Error ? saveFailure.message : "Could not save this issue." }
+    setSaving(false)
     if (saveError) setError(saveError)
   }
 
@@ -233,7 +237,7 @@ function CreateIssueModal({ issue, onClose, onSave }: IssueFormDialogProps) {
               type="submit"
               className="min-h-9 rounded-md bg-primary px-4 text-xs font-medium text-primary-foreground outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
             >
-              {issue ? "Save changes" : "Create issue"}
+              {saving ? "Saving…" : issue ? "Save changes" : "Create issue"}
             </button>
           </footer>
         </form>

@@ -8,6 +8,8 @@ import DashboardLayout from "@/components/layout/DashboardLayout"
 import { projectAccentOptions, projectIconOptions, type Project, type ProjectStatus } from "@/constants/projects"
 import { cardHover } from "@/lib/motion"
 import useProjects from "@/hooks/useProjects"
+import useAuth from "@/hooks/useAuth"
+import { projectApi } from "@/services/workspaceApi"
 
 const statusFilters: Array<"All" | ProjectStatus> = ["All", "Active", "Planning", "Completed"]
 type ProjectView = "grid" | "list"
@@ -28,6 +30,7 @@ function ProjectsPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { projects: projectList, setProjects: setProjectList } = useProjects()
+  const { accessToken, isDevelopmentPreview } = useAuth()
   const [search, setSearch] = useState("")
   const [activeStatus, setActiveStatus] = useState<(typeof statusFilters)[number]>("All")
   const [view, setView] = useState<ProjectView>("grid")
@@ -56,26 +59,37 @@ function ProjectsPage() {
     })
   }, [projectList, search, activeStatus])
 
-  function handleCreateProject(project: Project): string | undefined {
+  async function handleCreateProject(project: Project): Promise<string | undefined> {
     if (projectList.some((item) => item.code.toLowerCase() === project.code.toLowerCase())) {
       return `A project with code ${project.code} already exists.`
     }
-    setProjectList((currentProjects) => [project, ...currentProjects])
+    if (!accessToken || isDevelopmentPreview) {
+      setProjectList((currentProjects) => [project, ...currentProjects])
+      setCreationNotice(`${project.name} was created in this preview.`)
+    } else {
+      const saved = await projectApi.create(accessToken, project)
+      setProjectList((currentProjects) => [{ ...project, ...saved, status: (saved.status ?? project.status) as ProjectStatus, icon: saved.icon as Project["icon"], accent: saved.accent as Project["accent"], dueDate: saved.dueDate ?? undefined, health: saved.health as Project["health"] }, ...currentProjects])
+      setCreationNotice(`${project.name} was saved.`)
+    }
     setSearch("")
     setActiveStatus("All")
-    setCreationNotice(`${project.name} was created in this session.`)
     setShowCreateModal(false)
     return undefined
   }
 
-  function handleUpdateProject(project: Project): string | undefined {
+  async function handleUpdateProject(project: Project): Promise<string | undefined> {
     if (projectList.some((item) => item.id !== project.id && item.code.toLowerCase() === project.code.toLowerCase())) {
       return `A project with code ${project.code} already exists.`
     }
-    setProjectList((currentProjects) => currentProjects.map((item) => item.id === project.id ? project : item))
+    if (!accessToken || isDevelopmentPreview) {
+      setProjectList((currentProjects) => currentProjects.map((item) => item.id === project.id ? project : item))
+    } else {
+      const saved = await projectApi.update(accessToken, project.id, project)
+      setProjectList((currentProjects) => currentProjects.map((item) => item.id === project.id ? { ...project, ...saved, status: (saved.status ?? project.status) as ProjectStatus, icon: saved.icon as Project["icon"], accent: saved.accent as Project["accent"], dueDate: saved.dueDate ?? undefined, health: saved.health as Project["health"] } : item))
+    }
     setSearch("")
     setActiveStatus("All")
-    setCreationNotice(`${project.name} was updated in this session.`)
+    setCreationNotice(`${project.name} was updated.`)
     closeCreateModal()
     return undefined
   }
@@ -119,10 +133,7 @@ function ProjectsPage() {
           </button>
         </header>
 
-        <p className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3.5 py-3 text-xs font-semibold leading-5 text-foreground sm:text-sm">
-          <Info className="size-4 shrink-0 text-primary" aria-hidden="true" />
-          Projects are held in this page session and are not saved to an account or backend.
-        </p>
+        {isDevelopmentPreview && <p className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3.5 py-3 text-xs font-semibold leading-5 text-foreground sm:text-sm"><Info className="size-4 shrink-0 text-primary" aria-hidden="true" />Preview projects are local to this session.</p>}
 
         {creationNotice && (
           <p role="status" className="flex items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-foreground">

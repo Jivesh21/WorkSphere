@@ -1,9 +1,18 @@
+import { useEffect, useState } from "react"
 import { Activity } from "lucide-react"
 import { Link } from "react-router-dom"
 import useAuth from "@/hooks/useAuth"
+import { activityApi, type ActivityRecord } from "@/services/workspaceApi"
 
 function ProjectActivityChart() {
-  const { isDevelopmentPreview } = useAuth()
+  const { isDevelopmentPreview, accessToken } = useAuth()
+  const [activity, setActivity] = useState<ActivityRecord[]>([])
+  useEffect(() => {
+    if (!accessToken || isDevelopmentPreview) return
+    let active = true
+    activityApi.list(accessToken).then((records) => { if (active) setActivity(records.slice(0, 6)) }).catch(() => { if (active) setActivity([]) })
+    return () => { active = false }
+  }, [accessToken, isDevelopmentPreview])
   const previewActivity = [
     { person: "Raman", initials: "R", action: "updated", subject: "Implement authentication API", time: "2 min ago", color: "bg-violet-500" },
     { person: "Monika", initials: "M", action: "completed", subject: "Design token cleanup", time: "1 hour ago", color: "bg-emerald-500" },
@@ -39,7 +48,7 @@ function ProjectActivityChart() {
       ) : (
         <div className="flex min-h-16 items-center gap-2.5 px-3.5 py-3">
           <Activity className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-          <p className="text-xs leading-relaxed text-muted-foreground">Activity records aren’t available to this workspace yet.</p>
+          {activity.length ? <ol className="w-full divide-y divide-border/70">{activity.map((item) => <li key={item.id} className="flex min-w-0 items-center gap-3 py-2"><span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{item.actorUserId ?? "•"}</span><p className="min-w-0 flex-1 truncate text-xs text-muted-foreground">{item.description ?? item.type ?? "Workspace activity"}</p><time className="shrink-0 text-xs text-muted-foreground">{formatTime(item.createdAt)}</time></li>)}</ol> : <p className="text-xs leading-relaxed text-muted-foreground">No activity records are available yet.</p>}
         </div>
       )}
     </section>
@@ -47,3 +56,9 @@ function ProjectActivityChart() {
 }
 
 export default ProjectActivityChart
+
+function formatTime(value?: string) {
+  if (!value) return ""
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? "" : new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "short" }).format(date)
+}

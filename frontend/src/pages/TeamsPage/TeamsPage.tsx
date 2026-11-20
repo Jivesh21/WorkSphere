@@ -131,7 +131,7 @@ function TeamsPage() {
 
         <div className="flex flex-wrap items-start gap-2 rounded-md border border-primary/15 bg-primary/[0.04] px-3 py-2.5 text-xs text-muted-foreground">
           <UsersRound className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden="true" />
-          <p className="min-w-0 flex-1 leading-relaxed">The workspace member directory is not connected. This view can currently report only tasks assigned to your signed-in account; task data is session-only and does not persist after reload.</p>
+          <p className="min-w-0 flex-1 leading-relaxed">This workload view summarizes tasks assigned to your signed-in account. Open Workspace to view workspace members.</p>
           <span className="shrink-0 rounded border border-border bg-background px-2 py-1 text-xs">Account workload only</span>
         </div>
 
@@ -222,7 +222,7 @@ function TeamsPage() {
         <section aria-labelledby="directory-status-heading" className="flex flex-col gap-3 rounded-lg border border-border bg-muted/15 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div>
             <h2 id="directory-status-heading" className="text-xs font-semibold">Workspace member directory</h2>
-            <p className="mt-1 text-xs text-muted-foreground">Team creation, invitations, roles, and workspace membership are not connected to this page.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Workspace membership is available in the connected Workspace directory.</p>
           </div>
           <Link to="/workspace" className="inline-flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">Workspace setup <ArrowRight className="size-3" aria-hidden="true" /></Link>
         </section>
