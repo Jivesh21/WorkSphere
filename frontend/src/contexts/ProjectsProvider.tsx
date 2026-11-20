@@ -4,6 +4,7 @@ import { initialProjects, type Project } from "@/constants/projects"
 import { ProjectsContext } from "@/contexts/ProjectsContext"
 import useAuth from "@/hooks/useAuth"
 import { projectApi } from "@/services/workspaceApi"
+import useWorkspace from "@/contexts/WorkspaceContext"
 
 export function ProjectsProvider({ children }: { children: ReactNode }) {
   const { isDevelopmentPreview } = useAuth()
@@ -16,13 +17,14 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
 
 function ProjectsSession({ children, preview }: { children: ReactNode; preview: boolean }) {
   const { accessToken } = useAuth()
+  const { selectedWorkspaceId, loading: workspacesLoading } = useWorkspace()
   const [projects, setProjects] = useState<Project[]>(() =>
     import.meta.env.DEV && preview ? previewProjects() : initialProjects,
   )
   useEffect(() => {
-    if (!accessToken || preview) return
+    if (!accessToken || preview || workspacesLoading) return
     let active = true
-    projectApi.list(accessToken).then((records) => {
+    projectApi.list(accessToken, selectedWorkspaceId ?? undefined).then((records) => {
       if (active) setProjects(records.map((record) => ({
         ...record,
         description: record.description ?? "",
@@ -34,7 +36,7 @@ function ProjectsSession({ children, preview }: { children: ReactNode; preview: 
       })))
     }).catch(() => { if (active) setProjects([]) })
     return () => { active = false }
-  }, [accessToken, preview])
+  }, [accessToken, preview, selectedWorkspaceId, workspacesLoading])
   const value = useMemo(() => ({ projects, setProjects }), [projects])
 
   return <ProjectsContext.Provider value={value}>{children}</ProjectsContext.Provider>

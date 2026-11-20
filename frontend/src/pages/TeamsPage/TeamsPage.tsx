@@ -100,10 +100,13 @@ function TeamsPage() {
   const periodId = useId()
   const statusId = useId()
   const {
-    user,
-    assignedTasks,
+    workspace,
+    members,
+    filteredMemberTaskMap,
+    membersLoading,
+    membersError,
+    workspaceTasks,
     matchingTasks,
-    memberMatchesSearch,
     search,
     setSearch,
     period,
@@ -113,8 +116,6 @@ function TeamsPage() {
     counts,
   } = useTeamWorkload()
 
-  const memberVisible = Boolean(user && memberMatchesSearch)
-
   return (
     <DashboardLayout>
       <div className="mx-auto w-full max-w-[1280px] space-y-5 pb-8">
@@ -122,7 +123,7 @@ function TeamsPage() {
           <div className="min-w-0">
             <p className="text-xs font-medium text-muted-foreground">Workspace / Team</p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight">Team workload</h1>
-            <p className="mt-1 text-sm text-muted-foreground">A view of assigned work from the task data available in this session.</p>
+            <p className="mt-1 text-sm text-muted-foreground">People and project work for {workspace?.name ?? "your selected workspace"}.</p>
           </div>
           <Link to="/workspace" className="inline-flex h-9 w-fit items-center gap-2 rounded-md border border-border bg-card px-3 text-xs font-medium text-card-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">
             Workspace setup <ArrowRight className="size-3.5" aria-hidden="true" />
@@ -131,8 +132,8 @@ function TeamsPage() {
 
         <div className="flex flex-wrap items-start gap-2 rounded-md border border-primary/15 bg-primary/[0.04] px-3 py-2.5 text-xs text-muted-foreground">
           <UsersRound className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden="true" />
-          <p className="min-w-0 flex-1 leading-relaxed">This workload view summarizes tasks assigned to your signed-in account. Open Workspace to view workspace members.</p>
-          <span className="shrink-0 rounded border border-border bg-background px-2 py-1 text-xs">Account workload only</span>
+          <p className="min-w-0 flex-1 leading-relaxed">Workspace members and their assigned project tasks are shown below. Manage access from Workspace.</p>
+          <span className="shrink-0 rounded border border-border bg-background px-2 py-1 text-xs">{workspace?.name ?? "No workspace selected"}</span>
         </div>
 
         <section aria-labelledby="workload-summary-heading">
@@ -163,7 +164,7 @@ function TeamsPage() {
           <header className="flex flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
             <div>
               <h2 id="member-workload-heading" className="text-sm font-semibold">Member workload</h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">{user ? "Showing members with task data available to your account." : "No signed-in member data is available."}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{members.length} matching members · {workspaceTasks.length} project tasks</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative min-w-0 flex-1 sm:w-56 sm:flex-none">
@@ -179,19 +180,15 @@ function TeamsPage() {
           </header>
 
           <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/15 px-4 py-2 sm:px-5">
-            <p className="text-xs text-muted-foreground" aria-live="polite">{memberVisible ? "1 account" : "0 accounts"} · {matchingTasks.length} matching {matchingTasks.length === 1 ? "task" : "tasks"}</p>
+            <p className="text-xs text-muted-foreground" aria-live="polite">{members.length} {members.length === 1 ? "member" : "members"} · {matchingTasks.length} matching {matchingTasks.length === 1 ? "task" : "tasks"}</p>
             <p className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex"><Clock3 className="size-3" aria-hidden="true" />No capacity data</p>
           </div>
 
           <div className="space-y-3 p-3 sm:p-4">
-            {memberVisible && user ? (
-              <MemberWorkload name={user.name} email={user.email} tasks={matchingTasks} />
-            ) : (
-              <div className="rounded-md border border-dashed border-border px-4 py-8 text-center">
-                <p className="text-xs font-medium">{user ? (search ? "No matching members" : "No matching assigned tasks") : "Member data unavailable"}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{user ? "Try another search or adjust the date and status filters. Other workspace members are not available to this frontend yet." : "Sign in to view tasks assigned to your account."}</p>
-              </div>
-            )}
+            {membersError ? <p role="alert" className="rounded-md border border-destructive/25 p-4 text-sm text-destructive">{membersError}</p>
+              : membersLoading ? <p className="py-8 text-center text-sm text-muted-foreground">Loading workspace members…</p>
+              : members.length ? <div className="grid gap-3 lg:grid-cols-2">{members.map((member) => <MemberWorkload key={member.id} name={member.userName ?? `User ${member.userId ?? ""}`} email={member.userEmail ?? ""} tasks={filteredMemberTaskMap.get(member.userId) ?? []} />)}</div>
+              : <div className="rounded-md border border-dashed border-border px-4 py-8 text-center"><p className="text-xs font-medium">{workspace ? "No workspace members found" : "Choose a workspace"}</p><p className="mt-1 text-xs text-muted-foreground">{workspace ? "Add teammates from the Workspace page." : "Create or select a workspace to view your team."}</p></div>}
           </div>
         </section>
 
@@ -205,9 +202,9 @@ function TeamsPage() {
           </header>
           <div className="grid gap-4 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(220px,0.8fr)] sm:px-5">
             <ul className="divide-y divide-border sm:grid sm:grid-cols-2 sm:gap-x-5 sm:divide-y-0">
-              <InputAvailability label="Workspace membership" available={false} detail="A real workspace member directory is required for team-wide assignment." />
-              <InputAvailability label="Task assignments" available detail={assignedTasks.length ? "Task counts are visible for your signed-in account only." : "No tasks are currently assigned to your account."} />
-              <InputAvailability label="Deadlines" available={assignedTasks.some((task) => Boolean(task.dueDate))} detail="Task due dates can inform urgency when present." />
+              <InputAvailability label="Workspace membership" available={members.length > 0} detail={members.length ? `${members.length} workspace members are connected.` : "Add workspace members to enable team reporting."} />
+              <InputAvailability label="Task assignments" available detail={workspaceTasks.length ? `${workspaceTasks.length} workspace project tasks are available.` : "No tasks are currently linked to this workspace’s projects."} />
+              <InputAvailability label="Deadlines" available={workspaceTasks.some((task) => Boolean(task.dueDate))} detail="Task due dates can inform urgency when present." />
               <InputAvailability label="Estimated effort" available={false} detail="Task records do not include estimates or remaining effort." />
               <InputAvailability label="Skills" available={false} detail="No member skills data is connected." />
               <InputAvailability label="Availability" available={false} detail="No schedule, leave, or capacity data is connected." />
@@ -222,7 +219,7 @@ function TeamsPage() {
         <section aria-labelledby="directory-status-heading" className="flex flex-col gap-3 rounded-lg border border-border bg-muted/15 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div>
             <h2 id="directory-status-heading" className="text-xs font-semibold">Workspace member directory</h2>
-            <p className="mt-1 text-xs text-muted-foreground">Workspace membership is available in the connected Workspace directory.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Add members, change roles, transfer ownership, or remove access.</p>
           </div>
           <Link to="/workspace" className="inline-flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">Workspace setup <ArrowRight className="size-3" aria-hidden="true" /></Link>
         </section>

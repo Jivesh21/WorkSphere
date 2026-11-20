@@ -60,6 +60,7 @@ export interface Project {
   dueDate?: string
   /** Reserved for project data supplied by the backend. */
   health?: ProjectHealth
+  workspaceId?: number
   progress?: number
   completedTasks?: number
   totalTasks?: number

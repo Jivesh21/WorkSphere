@@ -8,6 +8,7 @@ import AuthProvider from "@/contexts/AuthContext"
 import { ThemeProvider } from "@/contexts/ThemeContext"
 import { IssuesProvider } from "@/contexts/IssuesProvider"
 import { ProjectsProvider } from "@/contexts/ProjectsProvider"
+import { WorkspaceProvider } from "@/contexts/WorkspaceContext"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,11 +26,13 @@ createRoot(document.getElementById("root")!).render(
         <MotionConfig reducedMotion="user">
           <ThemeProvider>
             <AuthProvider>
-              <IssuesProvider>
+              <WorkspaceProvider>
                 <ProjectsProvider>
-                  <App />
+                  <IssuesProvider>
+                    <App />
+                  </IssuesProvider>
                 </ProjectsProvider>
-              </IssuesProvider>
+              </WorkspaceProvider>
             </AuthProvider>
           </ThemeProvider>
         </MotionConfig>
