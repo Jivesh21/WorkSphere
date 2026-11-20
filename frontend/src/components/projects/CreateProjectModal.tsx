@@ -17,8 +17,8 @@ import { dialogOverlay, dialogPanel } from "@/lib/motion"
 interface CreateProjectModalProps {
   open: boolean
   onClose: () => void
-  onCreate: (project: Project) => string | undefined
-  onUpdate?: (project: Project) => string | undefined
+  onCreate: (project: Project) => string | undefined | Promise<string | undefined>
+  onUpdate?: (project: Project) => string | undefined | Promise<string | undefined>
   initialProject?: Project | null
 }
 
@@ -110,7 +110,7 @@ function CreateProjectModal({ open, onClose, onCreate, onUpdate, initialProject 
     }
   }, [open, closeDialog])
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (submitting) return
 
@@ -145,7 +145,12 @@ function CreateProjectModal({ open, onClose, onCreate, onUpdate, initialProject 
     }
 
     setSubmitting(true)
-    const saveError = initialProject ? onUpdate?.(project) : onCreate(project)
+    let saveError: string | undefined
+    try {
+      saveError = await (initialProject ? onUpdate?.(project) : onCreate(project))
+    } catch (error) {
+      saveError = error instanceof Error ? error.message : "Could not save this project."
+    }
     if (saveError) {
       setError(saveError)
       setSubmitting(false)

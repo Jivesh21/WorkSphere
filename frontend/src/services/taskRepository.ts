@@ -17,6 +17,10 @@ function notify(ownerKey: string) {
 }
 
 export const taskRepository = {
+  replace(ownerKey: string, tasks: Task[]): void {
+    tasksByOwner.set(ownerKey, tasks)
+    notify(ownerKey)
+  },
   seedDevelopmentPreview(ownerKey: string): void {
     if (!import.meta.env.DEV || ownerKey !== "0" || tasksByOwner.has(ownerKey)) return
     const timestamp = new Date().toISOString()

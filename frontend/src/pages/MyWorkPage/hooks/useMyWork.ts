@@ -3,10 +3,11 @@ import { useMemo, useState } from "react"
 import { taskRepository } from "@/services/taskRepository"
 import useTasks from "@/hooks/useTasks"
 import { priorityOrder, sortOptions } from "../constants"
+import { taskApi } from "@/services/workspaceApi"
 import type { PriorityFilter, SortOption, TaskFormValues, TaskStatusFilter } from "../types"
 
 function useMyWork() {
-  const { tasks: taskList, ownerKey } = useTasks()
+  const { tasks: taskList, ownerKey, accessToken, isDevelopmentPreview, user } = useTasks()
   const [search, setSearch] = useState("")
   const [activeStatus, setActiveStatus] = useState<TaskStatusFilter>("All")
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("All")
@@ -46,8 +47,14 @@ function useMyWork() {
   const completedTasks = visibleTasks.filter((task) => task.status === "DONE")
   const upcomingTasks = visibleTasks.filter((task) => task.dueDate !== getTodayDate() && task.status !== "DONE")
 
-  function saveTask(id: number | null, values: TaskFormValues) {
-    if (id === null) taskRepository.create(ownerKey, values)
+  async function saveTask(id: number | null, values: TaskFormValues) {
+    if (accessToken && !isDevelopmentPreview) {
+      const input = { title: values.title, description: values.description, status: values.status, priority: values.priority, dueDate: values.dueDate || null, projectId: values.projectId, assignedUserId: values.assignedUserId, actorUserId: user?.id }
+      const record = id === null ? await taskApi.create(accessToken, input) : await taskApi.update(accessToken, id, input)
+      const task = { ...values, id: record.id, subtasks: id === null ? [] : taskList.find((item) => item.id === id)?.subtasks ?? [], createdAt: record.createdAt, updatedAt: record.updatedAt }
+      if (id === null) taskRepository.replace(ownerKey, [task, ...taskList])
+      else taskRepository.replace(ownerKey, taskList.map((item) => item.id === id ? task : item))
+    } else if (id === null) taskRepository.create(ownerKey, values)
     else taskRepository.update(ownerKey, id, values)
     setSearch("")
     setActiveStatus("All")
@@ -88,7 +95,13 @@ function useMyWork() {
       setShowSort,
       setGroupByStatus,
       saveTask,
-      handleToggleTask: (taskId: number) => taskRepository.toggleCompletion(ownerKey, taskId),
+      handleToggleTask: async (taskId: number) => {
+        const task = taskList.find((item) => item.id === taskId)
+        if (!task) return
+        const status = task.status === "DONE" ? "TODO" : "DONE"
+        if (accessToken && !isDevelopmentPreview) await taskApi.update(accessToken, taskId, { title: task.title, description: task.description, status, priority: task.priority, dueDate: task.dueDate || null, projectId: task.projectId, assignedUserId: task.assignedUserId, actorUserId: user?.id })
+        taskRepository.toggleCompletion(ownerKey, taskId)
+      },
       addSubtask: (taskId: number, title: string) => Boolean(taskRepository.addSubtask(ownerKey, taskId, title)),
       renameSubtask: (taskId: number, subtaskId: number, title: string) => taskRepository.renameSubtask(ownerKey, taskId, subtaskId, title),
       toggleSubtask: (taskId: number, subtaskId: number) => taskRepository.toggleSubtask(ownerKey, taskId, subtaskId),

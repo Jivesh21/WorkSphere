@@ -5,10 +5,12 @@ import { projectAccentOptions, projectIconOptions } from "@/constants/projects"
 import useProjects from "@/hooks/useProjects"
 import useTasks from "@/hooks/useTasks"
 import { getProjectProgress } from "@/services/taskProgress"
+import useAuth from "@/hooks/useAuth"
 
 function ActiveProjects() {
   const { projects } = useProjects()
   const { tasks } = useTasks()
+  const { isDevelopmentPreview } = useAuth()
   const activeProjects = projects.filter((project) => project.status === "Active")
 
   return (
@@ -17,7 +19,7 @@ function ActiveProjects() {
         <div>
           <h2 id="active-projects-title" className="text-sm font-semibold tracking-tight">Project progress</h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            {activeProjects.length} active · session only
+            {activeProjects.length} active{isDevelopmentPreview ? " · preview" : " · from your account"}
           </p>
         </div>
         <Link to="/projects" className="rounded-sm text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">View all</Link>

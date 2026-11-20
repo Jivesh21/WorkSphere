@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import { Button } from "@/components/ui/button"
 import useAuth from "@/hooks/useAuth"
+import useProjects from "@/hooks/useProjects"
 
 import {
   statusFilters,
@@ -30,6 +31,7 @@ function MyWorkPage() {
   const [editingTask, setEditingTask] = useState<Task | undefined>()
   const [detailsTaskId, setDetailsTaskId] = useState<number | null>(null)
   const { user } = useAuth()
+  const { projects } = useProjects()
 
   useEffect(() => {
     if ((location.state as { quickCreate?: string } | null)?.quickCreate !== "task") return
@@ -75,8 +77,8 @@ function MyWorkPage() {
     setEditingTask(undefined)
   }
 
-  function saveTask(values: TaskFormValues) {
-    actions.saveTask(editingTask?.id ?? null, values)
+  async function saveTask(values: TaskFormValues) {
+    await actions.saveTask(editingTask?.id ?? null, values)
     closeTaskForm()
   }
 
@@ -110,9 +112,7 @@ function MyWorkPage() {
           </Button>
         </section>
 
-        <p className="rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-          Tasks are kept in this app session only. They are not saved to an account or backend yet.
-        </p>
+        {import.meta.env.DEV && !user?.id && <p className="rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">Preview tasks are local to this session.</p>}
 
         <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <SummaryCard
@@ -258,6 +258,7 @@ function MyWorkPage() {
       {taskFormOpen && (
         <TaskFormDialog
           initialTask={editingTask}
+          projects={projects.map(({ id, name }) => ({ id, name }))}
           members={user ? [{ id: user.id, name: user.name }] : []}
           onClose={closeTaskForm}
           onSave={saveTask}

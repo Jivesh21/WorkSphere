@@ -7,11 +7,13 @@ import CreateIssueModal from "@/components/issues/CreateIssueModal"
 import IssueDetailsDialog from "@/components/issues/IssueDetailsDialog"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import useIssues from "@/hooks/useIssues"
+import useAuth from "@/hooks/useAuth"
 import { staggerContainer, staggerItem } from "@/lib/motion"
 import { issuePriorities, issueStatuses, type Issue, type IssueFormValues, type IssuePriority, type IssueStatus } from "@/pages/issues/types"
 
 function BoardPage() {
   const { issues, createIssue, updateIssue, updateIssueStatus } = useIssues()
+  const { isDevelopmentPreview } = useAuth()
   const [search, setSearch] = useState("")
   const [priorityFilter, setPriorityFilter] = useState<"All" | IssuePriority>("All")
   const [createOpen, setCreateOpen] = useState(false)
@@ -38,9 +40,9 @@ function BoardPage() {
     setPriorityFilter("All")
   }
 
-  function handleCreateIssue(values: IssueFormValues) {
+  async function handleCreateIssue(values: IssueFormValues) {
     if (!values.title.trim()) return "Enter an issue title."
-    createIssue(values)
+    await createIssue(values)
     setCreateOpen(false)
     clearFilters()
     return undefined
@@ -84,10 +86,10 @@ function BoardPage() {
           </div>
         </header>
 
-        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground" role="note">
+        {isDevelopmentPreview && <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground" role="note">
           <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
-          Board and Issues share this session’s issue state. Changes are not saved after reload.
-        </div>
+          Preview issues are local to this session.
+        </div>}
 
         <section aria-label="Board controls" className="flex flex-col gap-2.5 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1 sm:max-w-sm">
@@ -139,7 +141,7 @@ function BoardPage() {
       </div>
       {createOpen && <CreateIssueModal onClose={() => setCreateOpen(false)} onSave={handleCreateIssue} />}
       {selectedIssue && <IssueDetailsDialog issue={selectedIssue} onClose={() => setSelectedIssueId(null)} onEdit={() => { setEditingIssue(selectedIssue); setSelectedIssueId(null) }} />}
-      {editingIssue && <CreateIssueModal key={editingIssue.id} issue={editingIssue} onClose={() => setEditingIssue(null)} onSave={(values) => { if (!values.title.trim()) return "Enter an issue title."; updateIssue(editingIssue.id, values); setEditingIssue(null); return undefined }} />}
+      {editingIssue && <CreateIssueModal key={editingIssue.id} issue={editingIssue} onClose={() => setEditingIssue(null)} onSave={async (values) => { if (!values.title.trim()) return "Enter an issue title."; await updateIssue(editingIssue.id, values); setEditingIssue(null); return undefined }} />}
     </DashboardLayout>
   )
 }

@@ -7,6 +7,7 @@ import CreateIssueModal from "@/components/issues/CreateIssueModal"
 import IssueDetailsDialog from "@/components/issues/IssueDetailsDialog"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import useIssues from "@/hooks/useIssues"
+import useAuth from "@/hooks/useAuth"
 import { staggerContainer, staggerItem } from "@/lib/motion"
 import { issuePriorities, issueStatuses, type Issue, type IssueFormValues, type IssuePriority, type IssueStatus } from "@/pages/issues/types"
 
@@ -25,6 +26,7 @@ function IssuesPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { issues, createIssue, updateIssue } = useIssues()
+  const { isDevelopmentPreview } = useAuth()
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<(typeof statusFilters)[number]>("All")
   const [priorityFilter, setPriorityFilter] = useState<(typeof priorityFilters)[number]>("All")
@@ -56,15 +58,15 @@ function IssuesPage() {
     })
   }, [issues, search, statusFilter, priorityFilter])
 
-  function saveIssue(values: IssueFormValues, existingIssue?: Issue): string | undefined {
+  async function saveIssue(values: IssueFormValues, existingIssue?: Issue): Promise<string | undefined> {
     if (!values.title.trim()) return "Enter an issue title."
     if (existingIssue) {
-      updateIssue(existingIssue.id, values)
+      await updateIssue(existingIssue.id, values)
       setEditingIssue(null)
       return undefined
     }
 
-    createIssue(values)
+    await createIssue(values)
     setCreateOpen(false)
     setSearch("")
     setStatusFilter("All")
@@ -96,9 +98,7 @@ function IssuesPage() {
           </div>
         </section>
 
-        <p className="rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-          Issues are shared between the Issues and Board views in this app session only. They are not saved to an account or backend yet.
-        </p>
+        {isDevelopmentPreview && <p className="rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">Preview issues are local to this session.</p>}
 
         <section aria-label="Issues list" className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="flex flex-col gap-3 border-b border-border p-4 lg:flex-row lg:items-center lg:justify-between">

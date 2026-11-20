@@ -11,7 +11,7 @@ import AssigneeSelector from "./AssigneeSelector"
 
 interface TaskFormDialogProps {
   onClose: () => void
-  onSave: (values: TaskFormValues) => void
+  onSave: (values: TaskFormValues) => void | Promise<void>
   initialTask?: Task
   projects?: ProjectOption[]
   members?: MemberOption[]
@@ -70,6 +70,8 @@ function TaskFormDialog({
     assignedUserName: null,
   })
   const [errors, setErrors] = useState<{ title?: string; dates?: string }>({})
+  const [saveError, setSaveError] = useState("")
+  const [saving, setSaving] = useState(false)
   const [voiceTranscript, setVoiceTranscript] = useState("")
   const [voiceError, setVoiceError] = useState("")
   const [voiceStatus, setVoiceStatus] = useState("")
@@ -191,7 +193,7 @@ function TaskFormDialog({
     setErrors({})
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const nextErrors: typeof errors = {}
     if (!values.title.trim()) nextErrors.title = "Enter a task title."
@@ -206,13 +208,16 @@ function TaskFormDialog({
 
     const project = availableProjects.find((option) => option.id === values.projectId)
     const member = availableMembers.find((option) => option.id === values.assignedUserId)
-    onSave({
+    setSaving(true)
+    setSaveError("")
+    try { await onSave({
       ...values,
       title: values.title.trim(),
       description: values.description.trim(),
       projectName: project?.name ?? (values.projectId === initialTask?.projectId ? initialTask.projectName : null),
       assignedUserName: member?.name ?? (values.assignedUserId === initialTask?.assignedUserId ? initialTask.assignedUserName : null),
-    })
+    }) } catch (error) { setSaveError(error instanceof Error ? error.message : "Could not save this task.") }
+    finally { setSaving(false) }
   }
 
   return (
@@ -252,7 +257,7 @@ function TaskFormDialog({
               {editing ? "Edit task" : "Create task"}
             </h2>
             <p id={descriptionId} className="mt-1 text-xs text-muted-foreground">
-              Changes stay in this app session. Start dates are not yet supported by the task API.
+              Tasks save to your account. Start dates and subtasks are not part of the task API yet.
             </p>
           </div>
           <button type="button" onClick={onClose} aria-label="Close task form" className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
@@ -417,10 +422,11 @@ function TaskFormDialog({
             </div>
           </div>
 
+          {saveError && <p role="alert" className="px-4 pt-2 text-xs text-destructive sm:px-5">{saveError}</p>}
           <footer className="flex shrink-0 flex-col-reverse gap-2 border-t border-border bg-muted/20 px-4 py-3 sm:flex-row sm:justify-end sm:px-5">
             <button type="button" onClick={onClose} className="min-h-9 rounded-md border border-border bg-background px-4 text-xs font-medium text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">Cancel</button>
-            <button type="submit" className="min-h-9 rounded-md bg-primary px-4 text-xs font-medium text-primary-foreground outline-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring">
-              {editing ? "Save changes" : "Create task"}
+            <button type="submit" disabled={saving} className="min-h-9 rounded-md bg-primary px-4 text-xs font-medium text-primary-foreground outline-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60">
+              {saving ? "Saving…" : editing ? "Save changes" : "Create task"}
             </button>
           </footer>
         </form>
