@@ -10,6 +10,7 @@ import { cardHover } from "@/lib/motion"
 import useProjects from "@/hooks/useProjects"
 import useAuth from "@/hooks/useAuth"
 import { projectApi } from "@/services/workspaceApi"
+import useWorkspace from "@/contexts/WorkspaceContext"
 
 const statusFilters: Array<"All" | ProjectStatus> = ["All", "Active", "Planning", "Completed"]
 type ProjectView = "grid" | "list"
@@ -31,6 +32,7 @@ function ProjectsPage() {
   const navigate = useNavigate()
   const { projects: projectList, setProjects: setProjectList } = useProjects()
   const { accessToken, isDevelopmentPreview } = useAuth()
+  const { selectedWorkspaceId, selectedWorkspace } = useWorkspace()
   const [search, setSearch] = useState("")
   const [activeStatus, setActiveStatus] = useState<(typeof statusFilters)[number]>("All")
   const [view, setView] = useState<ProjectView>("grid")
@@ -67,7 +69,7 @@ function ProjectsPage() {
       setProjectList((currentProjects) => [project, ...currentProjects])
       setCreationNotice(`${project.name} was created in this preview.`)
     } else {
-      const saved = await projectApi.create(accessToken, project)
+      const saved = await projectApi.create(accessToken, { ...project, workspaceId: selectedWorkspaceId ?? undefined })
       setProjectList((currentProjects) => [{ ...project, ...saved, status: (saved.status ?? project.status) as ProjectStatus, icon: saved.icon as Project["icon"], accent: saved.accent as Project["accent"], dueDate: saved.dueDate ?? undefined, health: saved.health as Project["health"] }, ...currentProjects])
       setCreationNotice(`${project.name} was saved.`)
     }
@@ -122,7 +124,7 @@ function ProjectsPage() {
                 {projectList.length} {projectList.length === 1 ? "project" : "projects"}
               </span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">Organize initiatives and keep project details in one place.</p>
+            <p className="mt-1 text-xs text-muted-foreground">{selectedWorkspace ? `Projects in ${selectedWorkspace.name}.` : "Organize initiatives and keep project details in one place."}</p>
           </div>
           <button
             type="button"

@@ -62,12 +62,12 @@ export const analyticsApi = {
 export const workspaceApi = {
   list: (token: string) => apiRequest<WorkspaceRecord[]>("/api/workspaces", token),
   get: (token: string, id: number) => apiRequest<WorkspaceRecord>(`/api/workspaces/${id}`, token),
-  create: (token: string, input: unknown) => apiRequest<WorkspaceRecord>("/api/workspaces", token, body("POST", input)),
-  update: (token: string, id: number, input: unknown) => apiRequest<WorkspaceRecord>(`/api/workspaces/${id}`, token, body("PUT", input)),
+  create: (token: string, input: WorkspaceInput) => apiRequest<WorkspaceRecord>("/api/workspaces", token, body("POST", input)),
+  update: (token: string, id: number, input: WorkspaceInput) => apiRequest<WorkspaceRecord>(`/api/workspaces/${id}`, token, body("PUT", input)),
   delete: (token: string, id: number) => apiRequest<void>(`/api/workspaces/${id}`, token, body("DELETE")),
   members: (token: string, id: number) => apiRequest<WorkspaceMemberRecord[]>(`/api/workspaces/${id}/members`, token),
   myMembership: (token: string, id: number) => apiRequest<WorkspaceMemberRecord>(`/api/workspaces/${id}/members/me`, token),
-  addMember: (token: string, id: number, input: unknown) => apiRequest<WorkspaceMemberRecord>(`/api/workspaces/${id}/members`, token, body("POST", input)),
+  addMember: (token: string, id: number, email: string) => apiRequest<WorkspaceMemberRecord>(`/api/workspaces/${id}/members`, token, body("POST", { email })),
   changeMemberRole: (token: string, workspaceId: number, memberId: number, role: string) => apiRequest<WorkspaceMemberRecord>(`/api/workspaces/${workspaceId}/members/${memberId}/role`, token, body("PATCH", { role })),
   removeMember: (token: string, workspaceId: number, memberId: number) => apiRequest<void>(`/api/workspaces/${workspaceId}/members/${memberId}`, token, body("DELETE")),
   leave: (token: string, id: number) => apiRequest<void>(`/api/workspaces/${id}/members/leave`, token, body("POST")),
@@ -94,5 +94,6 @@ export interface SprintRecord extends SprintInput { id: number; name?: string; g
 export interface ActivityRecord { id: number; actorUserId?: number; type?: string; description?: string; projectId?: number; taskId?: number; issueId?: number; sprintId?: number; createdAt?: string }
 export interface AnalyticsRecord { [key: string]: number }
 export interface WorkspaceRecord { id: number; name: string; description?: string | null; ownerId?: number; createdAt?: string; updatedAt?: string }
+export interface WorkspaceInput { name: string; description?: string | null }
 export interface WorkspaceMemberRecord { id: number; userId?: number; userName?: string; userEmail?: string; role?: string; joinedAt?: string }
 export interface UserRecord { id: number; name: string; email: string; role?: string; enabled?: boolean }
